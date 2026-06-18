@@ -17,6 +17,12 @@ $settings = @(
 )
 
 foreach ($setting in $settings) {
+    $currentValue = & git config --global --get $setting.key 2>$null
+    if (($LASTEXITCODE -eq 0) -and ($currentValue -eq $setting.value)) {
+        Write-Information -MessageData "Git $($setting.key) is already $($setting.value); skipping." -InformationAction Continue
+        continue
+    }
+
     Invoke-NativeCommand `
         -Label "Setting git $($setting.key)" `
         -FilePath git `

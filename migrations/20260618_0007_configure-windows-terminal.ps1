@@ -115,7 +115,7 @@ Write-ObjectProperty -InputObject $settings -Name 'defaultProfile' -Value '{574e
 Write-ObjectProperty -InputObject $settings -Name 'copyOnSelect' -Value $false
 Write-ObjectProperty -InputObject $settings -Name 'copyFormatting' -Value $false
 
-$profileList = @($profiles.list)
+$profileList = @($profiles.list | Where-Object { $null -ne $_ })
 $powershellProfile = $profileList | Where-Object { $_.guid -eq '{574e775e-4f2a-5b96-ac1e-a2962a402336}' } | Select-Object -First 1
 if ($powershellProfile) {
     Write-ObjectProperty -InputObject $powershellProfile -Name 'name' -Value 'PowerShell'
@@ -130,11 +130,22 @@ if ($powershellProfile) {
 Write-ObjectProperty -InputObject $profiles -Name 'list' -Value @($profileList)
 
 if (Test-Path $settingsPath) {
+    $currentJson = Get-Content -LiteralPath $settingsPath -Raw
+} else {
+    $currentJson = ''
+}
+
+$newJson = $settings | ConvertTo-Json -Depth 32
+
+if ($currentJson.TrimEnd("`r", "`n") -eq $newJson.TrimEnd("`r", "`n")) {
+    Write-Information -MessageData "Windows Terminal settings already match desired state; skipping write." -InformationAction Continue
+    return
+}
+
+if (Test-Path $settingsPath) {
     Copy-Item -LiteralPath $settingsPath -Destination "$settingsPath.bak" -Force
 }
 
-$settings |
-    ConvertTo-Json -Depth 32 |
-    Set-Content -LiteralPath $settingsPath -Encoding UTF8
+$newJson | Set-Content -LiteralPath $settingsPath -Encoding UTF8
 
 Write-Information -MessageData "Windows Terminal configured at $settingsPath." -InformationAction Continue

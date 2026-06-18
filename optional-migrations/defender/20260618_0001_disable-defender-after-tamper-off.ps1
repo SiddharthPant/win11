@@ -46,8 +46,12 @@ $defenderTasks = @(
 foreach ($taskName in $defenderTasks) {
     $task = Get-ScheduledTask -TaskPath '\Microsoft\Windows\Windows Defender\' -TaskName $taskName -ErrorAction SilentlyContinue
     if ($task) {
-        $task | Disable-ScheduledTask | Out-Null
-        Write-Information -MessageData "Disabled scheduled task: $taskName" -InformationAction Continue
+        if ($task.State -eq 'Disabled') {
+            Write-Information -MessageData "Scheduled task already disabled: $taskName" -InformationAction Continue
+        } else {
+            $task | Disable-ScheduledTask | Out-Null
+            Write-Information -MessageData "Disabled scheduled task: $taskName" -InformationAction Continue
+        }
     }
 }
 

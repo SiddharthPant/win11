@@ -3,8 +3,13 @@
 
 . (Join-Path $PSScriptRoot '_helpers.ps1')
 
-$installedDistributions = @(& wsl --list --quiet 2>$null)
-if ($installedDistributions -contains 'Ubuntu') {
+$installedDistributions = @(
+    & wsl --list --quiet 2>$null |
+        ForEach-Object { ($_ -replace "`0", '').Trim() } |
+        Where-Object { $_ }
+)
+
+if ($installedDistributions | Where-Object { $_ -like 'Ubuntu*' } | Select-Object -First 1) {
     Write-Information -MessageData "Ubuntu WSL distribution is already installed; skipping." -InformationAction Continue
     return
 }

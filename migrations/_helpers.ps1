@@ -70,19 +70,23 @@ function Test-WingetPackageInstalled {
     $text = $output | Out-String
     $escapedId = [regex]::Escape($Id)
 
-    if ($text -match "(?im)(^|\s)$escapedId(\s|$)") {
-        return $true
-    }
-
     if ($text -match 'No installed package found|No package found') {
         return $false
     }
 
-    if ((0, -1978335211) -contains $exitCode) {
+    if ($exitCode -eq -1978335211) {
         return $false
     }
 
-    throw "Checking installed package $Id failed with exit code $exitCode.`n$text"
+    if ($exitCode -ne 0) {
+        throw "Checking installed package $Id failed with exit code $exitCode.`n$text"
+    }
+
+    if ($text -match "(?im)(^|\s)$escapedId(\s|$)") {
+        return $true
+    }
+
+    return $false
 }
 
 function Install-WingetPackage {
@@ -104,5 +108,5 @@ function Install-WingetPackage {
         -Label "Installing $Name" `
         -FilePath winget `
         -ArgumentList @('install', '--id', $Id, '-e', '--source', $Source, '--silent', '--accept-package-agreements', '--accept-source-agreements', '--disable-interactivity') `
-        -AllowedExitCodes @(0, -1978334973, -1978335134) | Out-Null
+        -AllowedExitCodes @(0, -1978334963, -1978335135) | Out-Null
 }
