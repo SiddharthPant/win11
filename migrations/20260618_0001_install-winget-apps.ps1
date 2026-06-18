@@ -11,7 +11,6 @@ Invoke-NativeCommand `
 
 $wingetApps = @(
     'Google.Chrome',
-    'Spotify.Spotify',
     'Notion.Notion',
     'Git.Git',
     'Microsoft.VisualStudioCode',

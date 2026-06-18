@@ -69,13 +69,15 @@ Private.
 
 - **`20260618_0000_update-app-installer.ps1`:** updates App Installer/winget before package
   installs, because stale fresh-install clients can fail on current manifests.
-- **`20260618_0001_install-winget-apps.ps1`:** Chrome, Spotify, Notion, Git, VS Code,
-  PowerShell 7, Docker Desktop, PowerToys, Everything, NanaZip, SumatraPDF, ShareX.
+- **`20260618_0001_install-winget-apps.ps1`:** Chrome, Notion, Git, VS Code, PowerShell 7,
+  Docker Desktop, PowerToys, Everything, NanaZip, SumatraPDF, ShareX.
 - **`20260618_0002_install-maple-mono-nf.ps1`:** Maple Mono NF from GitHub releases.
 - **`20260618_0003_set-chrome-default.ps1`:** Chrome via SetUserFTA config file
   (`http`, `https`, `.htm`, `.html`).
 - **`20260618_0004_install-wsl-ubuntu.ps1`:** WSL2 stack + Ubuntu, installed without launching.
-- **`20260618_0005_install-store-apps.ps1`:** WhatsApp and Netflix from the Microsoft Store.
+- **`20260618_0005_install-store-apps.ps1`:** Spotify, WhatsApp, and Netflix from the
+  Microsoft Store. Spotify uses the Store package because its desktop installer rejects elevated
+  admin installs.
 - **`20260618_0006_configure-git-defaults.ps1`:** Git defaults for branch naming, line endings,
   long paths, pruning, fast-forward-only pulls, and Git Credential Manager.
 - **`20260618_0007_configure-windows-terminal.ps1`:** Windows Terminal defaults to PowerShell 7

@@ -6,6 +6,7 @@
 Wait-Winget
 
 $storeApps = @(
+    @{ id = '9NCBCSZSJRSB'; name = 'Spotify' },
     @{ id = '9NKSQGP7F2NH'; name = 'WhatsApp' },
     @{ id = '9WZDNCRFJ3TJ'; name = 'Netflix' }
 )
