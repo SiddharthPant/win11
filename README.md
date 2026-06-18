@@ -50,8 +50,8 @@ incremental setup changes.
 device encryption, applies Defender policy values, lowers telemetry, disables web search,
 Widgets/news, Spotlight/consumer content, Copilot/Windows AI policy, location, advertising ID,
 AutoRun, and Start Recommended. It also enables long paths, Developer Mode, Sudo for Windows
-inline mode, and Hardware-Accelerated GPU Scheduling. Locale defaults to en-US UI/region, US
-keyboard, and UTC time zone; customize these before install if needed.
+inline mode, and Hardware-Accelerated GPU Scheduling. Locale defaults to en-US UI, en-IN region,
+US keyboard, and India Standard Time; customize these before install if needed.
 
 **At first logon / per-user:** keeps online Microsoft-account OOBE, removes selected inbox apps
 (Copilot, Bing News/Weather, Maps, Feedback Hub, Get Help/Get Started, Office hub, Solitaire,
