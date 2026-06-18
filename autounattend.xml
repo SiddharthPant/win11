@@ -341,7 +341,7 @@
                     <Description>Show all drives incl. empty</Description>
                 </SynchronousCommand>
 
-                <!-- Suppress "Open With" prompts after default-app changes -->
+                <!-- Suppress "Open With" prompts after new app installs -->
                 <SynchronousCommand wcm:action="add">
                     <Order>27</Order>
                     <CommandLine>cmd /c reg add "HKCU\Software\Policies\Microsoft\Windows\Explorer" /v NoNewAppAlert /t REG_DWORD /d 1 /f</CommandLine>
@@ -374,13 +374,6 @@
                     <Order>31</Order>
                     <CommandLine>cmd /c reg add "HKCU\Control Panel\Mouse" /v MouseSpeed /t REG_SZ /d 0 /f &amp; reg add "HKCU\Control Panel\Mouse" /v MouseThreshold1 /t REG_SZ /d 0 /f &amp; reg add "HKCU\Control Panel\Mouse" /v MouseThreshold2 /t REG_SZ /d 0 /f</CommandLine>
                     <Description>Disable mouse acceleration</Description>
-                </SynchronousCommand>
-
-                <!-- Dark mode (apps + system) -->
-                <SynchronousCommand wcm:action="add">
-                    <Order>32</Order>
-                    <CommandLine>cmd /c reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v AppsUseLightTheme /t REG_DWORD /d 0 /f &amp; reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v SystemUsesLightTheme /t REG_DWORD /d 0 /f</CommandLine>
-                    <Description>Enable dark mode</Description>
                 </SynchronousCommand>
 
                 <!-- Show seconds in the taskbar clock -->

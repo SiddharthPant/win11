@@ -3,7 +3,7 @@
 Windows 11 setup notes for a dual-boot desktop. `autounattend.xml` handles edition selection,
 policy/registry setup, and first-logon
 personalization after you choose the target disk and complete Microsoft-account OOBE. Run
-`run-migrations.ps1` once from the desktop for apps, font, WSL, and all future
+`run-migrations.ps1` once from the desktop for apps, font, and all future
 incremental setup changes.
 
 ## Files
@@ -37,12 +37,18 @@ incremental setup changes.
    is created.
 6. Confirm activation if needed: Settings -> System -> Activation. The key in the answer
    file only selects Pro; the digital license is tied to the Microsoft account/hardware.
-7. Open an elevated PowerShell, allow scripts for that terminal with
+7. Install and initialize WSL before migrations so Docker Desktop has a working WSL backend:
+   ```powershell
+   wsl --install
+   ```
+   Reboot when Windows asks. After reboot, open an elevated PowerShell and run `wsl --install`
+   again if Ubuntu has not finished setup, then create the Ubuntu username/password when prompted.
+   Verify with `wsl --list --verbose`.
+8. Open an elevated PowerShell, allow scripts for that terminal with
    `Set-ExecutionPolicy RemoteSigned -Scope Process`, then run `.\run-migrations.ps1` once with
    internet access.
-8. Later, pull repo changes, repeat the process-scoped execution policy command in an elevated
+9. Later, pull repo changes, repeat the process-scoped execution policy command in an elevated
    PowerShell, then run `.\run-migrations.ps1` again to apply only new migrations.
-9. Reboot to finish WSL. The first `wsl` launch creates the Linux username/password.
 10. Optional: finish Defender disable using `defender-disable-steps.md`.
 
 ## What `autounattend.xml` Does
@@ -58,7 +64,7 @@ US keyboard, and India Standard Time; customize these before install if needed.
 (Copilot, Bing News/Weather, Maps, Feedback Hub, Get Help/Get Started, Office hub, Solitaire,
 People, Mixed Reality Portal, Wallet, Teams, new Outlook, old Mail/Calendar, Widgets host, and
 Cortana), shows the five standard desktop icons, shows file extensions and hidden files, hides
-taskbar search/widgets/Copilot, left-aligns the taskbar, enables dark mode and clock seconds,
+taskbar search/widgets/Copilot, left-aligns the taskbar, enables clock seconds,
 opens Explorer to This PC, shows all drives, expands the navigation pane, enables End Task on
 taskbar right-click, disables Sticky Keys prompt and mouse acceleration, enables NumLock, suppresses
 Start/Explorer/Settings suggestions, suppresses new-app default prompts, enables Ultimate
@@ -72,7 +78,6 @@ Private.
 - **`20260618_0001_install-winget-apps.ps1`:** Chrome, Notion, Git, VS Code, PowerShell 7,
   Docker Desktop, PowerToys, Everything, NanaZip, SumatraPDF, ShareX.
 - **`20260618_0002_install-maple-mono-nf.ps1`:** Maple Mono NF from GitHub releases.
-- **`20260618_0004_install-wsl-ubuntu.ps1`:** WSL2 stack + Ubuntu, installed without launching.
 - **`20260618_0005_install-store-apps.ps1`:** Spotify, WhatsApp, and Netflix from the
   Microsoft Store. Spotify uses the Store package because its desktop installer rejects elevated
   admin installs.
@@ -113,7 +118,7 @@ Set-ExecutionPolicy RemoteSigned -Scope Process
 
 - **Disk safety:** confirm the Windows target disk by size/model before partitioning; do not touch
   existing data or Linux disks.
-- **Takes effect after a reboot:** Developer Mode, Sudo, HAGS, WSL completion.
+- **Takes effect after a reboot:** Developer Mode, Sudo, HAGS.
 - **Fast Startup:** left on by choice. No dual-boot RTC=UTC fix is applied, so expect a Windows/
   Linux clock offset until you set one side to match. Turn Fast Startup off manually before relying
   on Linux writes to Windows NTFS partitions.

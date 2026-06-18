@@ -12,7 +12,7 @@ Examples:
 
 ```text
 20260618_0001_enable-terminal-profile.ps1
-20260618_0002_configure-docker-wsl.ps1
+20260618_0002_configure-docker-user.ps1
 ```
 
 Run from an elevated PowerShell at the repo root:
