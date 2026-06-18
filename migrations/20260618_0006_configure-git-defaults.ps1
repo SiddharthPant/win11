@@ -12,7 +12,7 @@ $settings = @(
     @{ key = 'core.autocrlf'; value = 'false' },
     @{ key = 'core.longpaths'; value = 'true' },
     @{ key = 'fetch.prune'; value = 'true' },
-    @{ key = 'pull.rebase'; value = 'false' },
+    @{ key = 'pull.ff'; value = 'only' },
     @{ key = 'credential.helper'; value = 'manager' }
 )
 

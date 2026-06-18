@@ -74,7 +74,7 @@ Private.
 - **`20260618_0004_install-wsl-ubuntu.ps1`:** WSL2 stack + Ubuntu, installed without launching.
 - **`20260618_0005_install-store-apps.ps1`:** WhatsApp and Netflix from the Microsoft Store.
 - **`20260618_0006_configure-git-defaults.ps1`:** Git defaults for branch naming, line endings,
-  long paths, pruning, pulls, and Git Credential Manager.
+  long paths, pruning, fast-forward-only pulls, and Git Credential Manager.
 - **`20260618_0007_configure-windows-terminal.ps1`:** Windows Terminal defaults to PowerShell 7
   and Maple Mono NF.
 - **`20260618_0008_configure-docker-user.ps1`:** adds the current Windows user to `docker-users`.
