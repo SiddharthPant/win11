@@ -25,8 +25,5 @@ $wingetApps = @(
 )
 
 foreach ($id in $wingetApps) {
-    Invoke-NativeCommand `
-        -Label "Installing $id" `
-        -FilePath winget `
-        -ArgumentList @('install', '--id', $id, '-e', '--source', 'winget', '--silent', '--accept-package-agreements', '--accept-source-agreements', '--disable-interactivity') | Out-Null
+    Install-WingetPackage -Id $id
 }

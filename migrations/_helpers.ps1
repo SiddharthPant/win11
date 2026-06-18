@@ -58,3 +58,51 @@ function Wait-Winget {
 
     throw "winget is unavailable. Open Microsoft Store, let App Installer update, then re-run migrations."
 }
+
+function Test-WingetPackageInstalled {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $Id
+    )
+
+    $output = & winget list --id $Id -e --disable-interactivity 2>&1
+    $exitCode = if ($null -eq $LASTEXITCODE) { 0 } else { $LASTEXITCODE }
+    $text = $output | Out-String
+    $escapedId = [regex]::Escape($Id)
+
+    if ($text -match "(?im)(^|\s)$escapedId(\s|$)") {
+        return $true
+    }
+
+    if ($text -match 'No installed package found|No package found') {
+        return $false
+    }
+
+    if ((0, -1978335211) -contains $exitCode) {
+        return $false
+    }
+
+    throw "Checking installed package $Id failed with exit code $exitCode.`n$text"
+}
+
+function Install-WingetPackage {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $Id,
+
+        [string] $Source = 'winget',
+
+        [string] $Name = $Id
+    )
+
+    if (Test-WingetPackageInstalled -Id $Id) {
+        Write-Information -MessageData "$Name is already installed; skipping." -InformationAction Continue
+        return
+    }
+
+    Invoke-NativeCommand `
+        -Label "Installing $Name" `
+        -FilePath winget `
+        -ArgumentList @('install', '--id', $Id, '-e', '--source', $Source, '--silent', '--accept-package-agreements', '--accept-source-agreements', '--disable-interactivity') `
+        -AllowedExitCodes @(0, -1978334973, -1978335134) | Out-Null
+}

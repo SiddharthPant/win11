@@ -11,8 +11,5 @@ $storeApps = @(
 )
 
 foreach ($app in $storeApps) {
-    Invoke-NativeCommand `
-        -Label "Installing $($app.name) (Store)" `
-        -FilePath winget `
-        -ArgumentList @('install', '--id', $app.id, '--source', 'msstore', '--silent', '--accept-package-agreements', '--accept-source-agreements', '--disable-interactivity') | Out-Null
+    Install-WingetPackage -Id $app.id -Source 'msstore' -Name "$($app.name) (Store)"
 }
