@@ -50,7 +50,8 @@ Set-MpPreference -SubmitSamplesConsent NeverSend
 Or run the optional migration from the repo root:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\run-migrations.ps1 `
+Set-ExecutionPolicy RemoteSigned -Scope Process
+.\run-migrations.ps1 `
   -MigrationPath .\optional-migrations\defender `
   -StatePath "$env:ProgramData\Win11Setup\defender-migrations.json"
 ```

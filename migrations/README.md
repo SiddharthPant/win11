@@ -18,13 +18,15 @@ Examples:
 Run from an elevated PowerShell at the repo root:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\run-migrations.ps1
+Set-ExecutionPolicy RemoteSigned -Scope Process
+.\run-migrations.ps1
 ```
 
 Preview migration state:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\run-migrations.ps1 -List
+Set-ExecutionPolicy RemoteSigned -Scope Process
+.\run-migrations.ps1 -List
 ```
 
 Rules of thumb:

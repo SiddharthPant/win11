@@ -3,7 +3,8 @@
 Run this only after manually turning **Tamper Protection** off in Windows Security.
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\run-migrations.ps1 `
+Set-ExecutionPolicy RemoteSigned -Scope Process
+.\run-migrations.ps1 `
   -MigrationPath .\optional-migrations\defender `
   -StatePath "$env:ProgramData\Win11Setup\defender-migrations.json"
 ```

@@ -18,7 +18,6 @@ incremental setup changes.
   `migrations/` and records successful runs in `%ProgramData%\Win11Setup\migrations.json`.
 - **`migrations/`** — post-install setup and future one-off changes, named so they sort in the
   order you want them applied.
-- **`post-install-apps.ps1`** — compatibility wrapper that now just calls `run-migrations.ps1`.
 - **`defender-disable-steps.md`** — manual checklist for fully disabling Defender after
   Tamper Protection is turned off in Windows Security.
 - **`optional-migrations/defender/`** — opt-in Defender disable automation to run only after
@@ -38,9 +37,11 @@ incremental setup changes.
    is created.
 6. Confirm activation if needed: Settings -> System -> Activation. The key in the answer
    file only selects Pro; the digital license is tied to the Microsoft account/hardware.
-7. Run `run-migrations.ps1` once with admin rights and internet access.
-8. Later, pull repo changes and run `.\run-migrations.ps1` again from an elevated PowerShell to
-   apply only new migrations.
+7. Open an elevated PowerShell, allow scripts for that terminal with
+   `Set-ExecutionPolicy RemoteSigned -Scope Process`, then run `.\run-migrations.ps1` once with
+   internet access.
+8. Later, pull repo changes, repeat the process-scoped execution policy command in an elevated
+   PowerShell, then run `.\run-migrations.ps1` again to apply only new migrations.
 9. Reboot to finish WSL. The first `wsl` launch creates the Linux username/password.
 10. Optional: finish Defender disable using `defender-disable-steps.md`.
 
@@ -96,8 +97,11 @@ Use migrations for first-run post-install setup and for changes you want to appl
 already-installed PC. Add a new PowerShell file under `migrations/`, commit it, then run:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\run-migrations.ps1
+Set-ExecutionPolicy RemoteSigned -Scope Process
+.\run-migrations.ps1
 ```
+
+The `Process` scope lasts only for the current elevated PowerShell session.
 
 The runner sorts migration filenames lexically, skips anything already recorded, and records a
 script only after it exits successfully. Keep migration scripts small and idempotent enough to
@@ -106,7 +110,8 @@ survive a failed half-run, because there is intentionally no down/rollback path.
 To preview state without applying anything:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\run-migrations.ps1 -List
+Set-ExecutionPolicy RemoteSigned -Scope Process
+.\run-migrations.ps1 -List
 ```
 
 ## Notes
