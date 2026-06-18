@@ -3,7 +3,7 @@
 Windows 11 setup notes for a dual-boot desktop. `autounattend.xml` handles edition selection,
 policy/registry setup, and first-logon
 personalization after you choose the target disk and complete Microsoft-account OOBE. Run
-`run-migrations.ps1` once from the desktop for apps, font, Chrome defaults, WSL, and all future
+`run-migrations.ps1` once from the desktop for apps, font, WSL, and all future
 incremental setup changes.
 
 ## Files
@@ -72,8 +72,6 @@ Private.
 - **`20260618_0001_install-winget-apps.ps1`:** Chrome, Notion, Git, VS Code, PowerShell 7,
   Docker Desktop, PowerToys, Everything, NanaZip, SumatraPDF, ShareX.
 - **`20260618_0002_install-maple-mono-nf.ps1`:** Maple Mono NF from GitHub releases.
-- **`20260618_0003_set-chrome-default.ps1`:** Chrome via SetUserFTA config file
-  (`http`, `https`, `.htm`, `.html`).
 - **`20260618_0004_install-wsl-ubuntu.ps1`:** WSL2 stack + Ubuntu, installed without launching.
 - **`20260618_0005_install-store-apps.ps1`:** Spotify, WhatsApp, and Netflix from the
   Microsoft Store. Spotify uses the Store package because its desktop installer rejects elevated
@@ -85,13 +83,6 @@ Private.
 - **`20260618_0008_configure-docker-user.ps1`:** adds the current Windows user to `docker-users`.
 - **`20260618_0009_configure-windows-update.ps1`:** sets active hours and prevents auto-reboots
   while a user is logged on.
-
-SetUserFTA note: the migration downloads the public Personal Edition from
-`https://setuserfta.com/SetUserFTA.zip`; the old `https://kolbi.cz/SetUserFTA.zip` URL returns
-404. SetUserFTA v2.x is customer-only; as of the checked official version history, current v2 is
-2.7.3, released on 2025-12-16. The script uses the config-file syntax documented for v2 and still
-compatible with the public Personal Edition. If Windows asks for WMIC for the Personal Edition,
-follow the prompt or substitute a licensed v2 `SetUserFTA.exe`.
 
 To add/remove apps, edit the relevant migration or add a new migration.
 
