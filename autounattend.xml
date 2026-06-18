@@ -1,0 +1,454 @@
+<?xml version="1.0" encoding="utf-8"?>
+<unattend xmlns="urn:schemas-microsoft-com:unattend" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State">
+
+    <!-- ================= windowsPE: language / keyboard / edition / setup EULA ================= -->
+    <settings pass="windowsPE">
+        <component name="Microsoft-Windows-International-Core-WinPE" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+            <SetupUILanguage>
+                <UILanguage>en-US</UILanguage>
+            </SetupUILanguage>
+            <InputLocale>0409:00000409</InputLocale>
+            <SystemLocale>en-US</SystemLocale>
+            <UILanguage>en-US</UILanguage>
+            <UserLocale>en-US</UserLocale>
+        </component>
+        <component name="Microsoft-Windows-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+            <UserData>
+                <ProductKey>
+                    <Key>VK7JG-NPHTM-C97JM-9MPGT-3V66T</Key>
+                    <WillShowUI>OnError</WillShowUI>
+                </ProductKey>
+                <AcceptEula>true</AcceptEula>
+            </UserData>
+        </component>
+    </settings>
+
+    <!-- ================= specialize: computer name, timezone, machine-wide (HKLM) tweaks ================= -->
+    <settings pass="specialize">
+        <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+            <ComputerName>*</ComputerName>
+            <TimeZone>UTC</TimeZone>
+        </component>
+        <component name="Microsoft-Windows-Deployment" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+            <RunSynchronous>
+
+                <!-- BitLocker: prevent automatic device encryption -->
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>1</Order>
+                    <Path>cmd /c reg add "HKLM\SYSTEM\CurrentControlSet\Control\BitLocker" /v PreventDeviceEncryption /t REG_DWORD /d 1 /f</Path>
+                </RunSynchronousCommand>
+
+                <!-- Windows Defender: disable (only effective once Tamper Protection is turned off in Windows Security) -->
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>2</Order>
+                    <Path>cmd /c reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableAntiSpyware /t REG_DWORD /d 1 /f</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>3</Order>
+                    <Path>cmd /c reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableRealtimeMonitoring /t REG_DWORD /d 1 /f</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>4</Order>
+                    <Path>cmd /c reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableBehaviorMonitoring /t REG_DWORD /d 1 /f</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>5</Order>
+                    <Path>cmd /c reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableOnAccessProtection /t REG_DWORD /d 1 /f</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>6</Order>
+                    <Path>cmd /c reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableScanOnRealtimeEnable /t REG_DWORD /d 1 /f</Path>
+                </RunSynchronousCommand>
+
+                <!-- Telemetry / diagnostic data: minimum -->
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>7</Order>
+                    <Path>cmd /c reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v AllowTelemetry /t REG_DWORD /d 0 /f</Path>
+                </RunSynchronousCommand>
+
+                <!-- Web / Bing results in Start search -->
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>8</Order>
+                    <Path>cmd /c reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" /v DisableWebSearch /t REG_DWORD /d 1 /f</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>9</Order>
+                    <Path>cmd /c reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" /v ConnectedSearchUseWeb /t REG_DWORD /d 0 /f</Path>
+                </RunSynchronousCommand>
+
+                <!-- Widgets / News and interests -->
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>10</Order>
+                    <Path>cmd /c reg add "HKLM\SOFTWARE\Policies\Microsoft\Dsh" /v AllowNewsAndInterests /t REG_DWORD /d 0 /f</Path>
+                </RunSynchronousCommand>
+
+                <!-- Suggested content / Spotlight / consumer features (machine-wide) -->
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>11</Order>
+                    <Path>cmd /c reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" /v DisableWindowsConsumerFeatures /t REG_DWORD /d 1 /f</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>12</Order>
+                    <Path>cmd /c reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" /v DisableWindowsSpotlightFeatures /t REG_DWORD /d 1 /f</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>13</Order>
+                    <Path>cmd /c reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" /v DisableSoftLanding /t REG_DWORD /d 1 /f</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>14</Order>
+                    <Path>cmd /c reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" /v DisableTailoredExperiencesWithDiagnosticData /t REG_DWORD /d 1 /f</Path>
+                </RunSynchronousCommand>
+
+                <!-- Copilot + Recall / Windows AI (machine policy) -->
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>15</Order>
+                    <Path>cmd /c reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsCopilot" /v TurnOffWindowsCopilot /t REG_DWORD /d 1 /f</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>16</Order>
+                    <Path>cmd /c reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsAI" /v DisableAIDataAnalysis /t REG_DWORD /d 1 /f</Path>
+                </RunSynchronousCommand>
+
+                <!-- Location off (machine policy) -->
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>17</Order>
+                    <Path>cmd /c reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors" /v DisableLocation /t REG_DWORD /d 1 /f</Path>
+                </RunSynchronousCommand>
+
+                <!-- Advertising ID off (machine policy) -->
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>18</Order>
+                    <Path>cmd /c reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo" /v DisabledByGroupPolicy /t REG_DWORD /d 1 /f</Path>
+                </RunSynchronousCommand>
+
+                <!-- Disable AutoRun / AutoPlay on all drive types -->
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>19</Order>
+                    <Path>cmd /c reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v NoDriveTypeAutoRun /t REG_DWORD /d 255 /f</Path>
+                </RunSynchronousCommand>
+
+                <!-- Hide the Start "Recommended" section (Pro policy) -->
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>20</Order>
+                    <Path>cmd /c reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Explorer" /v HideRecommendedSection /t REG_DWORD /d 1 /f</Path>
+                </RunSynchronousCommand>
+
+                <!-- Enable long (>260 char) file paths -->
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>21</Order>
+                    <Path>cmd /c reg add "HKLM\SYSTEM\CurrentControlSet\Control\FileSystem" /v LongPathsEnabled /t REG_DWORD /d 1 /f</Path>
+                </RunSynchronousCommand>
+
+                <!-- Enable Developer Mode -->
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>22</Order>
+                    <Path>cmd /c reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /v AllowDevelopmentWithoutDevLicense /t REG_DWORD /d 1 /f</Path>
+                </RunSynchronousCommand>
+
+                <!-- Enable Sudo for Windows (inline mode, Linux-like) -->
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>23</Order>
+                    <Path>cmd /c reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Sudo" /v Enabled /t REG_DWORD /d 3 /f</Path>
+                </RunSynchronousCommand>
+
+                <!-- Enable Hardware-Accelerated GPU Scheduling (HAGS) -->
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>24</Order>
+                    <Path>cmd /c reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 2 /f</Path>
+                </RunSynchronousCommand>
+
+            </RunSynchronous>
+        </component>
+    </settings>
+
+    <!-- ================= oobeSystem: skip prompts, per-user (HKCU) tweaks. Account is created interactively (online/MSA). ================= -->
+    <settings pass="oobeSystem">
+        <component name="Microsoft-Windows-International-Core" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+            <InputLocale>0409:00000409</InputLocale>
+            <SystemLocale>en-US</SystemLocale>
+            <UILanguage>en-US</UILanguage>
+            <UserLocale>en-US</UserLocale>
+        </component>
+        <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+
+            <OOBE>
+                <HideEULAPage>true</HideEULAPage>
+                <HideOEMRegistrationScreen>true</HideOEMRegistrationScreen>
+                <ProtectYourPC>3</ProtectYourPC>
+            </OOBE>
+
+            <FirstLogonCommands>
+                <!-- Show file extensions -->
+                <SynchronousCommand wcm:action="add">
+                    <Order>1</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v HideFileExt /t REG_DWORD /d 0 /f</CommandLine>
+                    <Description>Show file extensions</Description>
+                </SynchronousCommand>
+
+                <!-- Kill web/Bing suggestions in Start search -->
+                <SynchronousCommand wcm:action="add">
+                    <Order>2</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Software\Policies\Microsoft\Windows\Explorer" /v DisableSearchBoxSuggestions /t REG_DWORD /d 1 /f</CommandLine>
+                    <Description>Disable Start search web suggestions</Description>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
+                    <Order>3</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Search" /v BingSearchEnabled /t REG_DWORD /d 0 /f</CommandLine>
+                    <Description>Disable Bing search</Description>
+                </SynchronousCommand>
+
+                <!-- Advertising ID off (per user) -->
+                <SynchronousCommand wcm:action="add">
+                    <Order>4</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" /v Enabled /t REG_DWORD /d 0 /f</CommandLine>
+                    <Description>Disable advertising ID</Description>
+                </SynchronousCommand>
+
+                <!-- Tailored experiences off (per user) -->
+                <SynchronousCommand wcm:action="add">
+                    <Order>5</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Privacy" /v TailoredExperiencesWithDiagnosticDataEnabled /t REG_DWORD /d 0 /f</CommandLine>
+                    <Description>Disable tailored experiences</Description>
+                </SynchronousCommand>
+
+                <!-- Copilot button + per-user policy -->
+                <SynchronousCommand wcm:action="add">
+                    <Order>6</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Software\Policies\Microsoft\Windows\WindowsCopilot" /v TurnOffWindowsCopilot /t REG_DWORD /d 1 /f</CommandLine>
+                    <Description>Disable Copilot (per user)</Description>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
+                    <Order>7</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v ShowCopilotButton /t REG_DWORD /d 0 /f</CommandLine>
+                    <Description>Hide Copilot taskbar button</Description>
+                </SynchronousCommand>
+
+                <!-- Remove Widgets button from taskbar -->
+                <SynchronousCommand wcm:action="add">
+                    <Order>8</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarDa /t REG_DWORD /d 0 /f</CommandLine>
+                    <Description>Hide Widgets taskbar button</Description>
+                </SynchronousCommand>
+
+                <!-- Start "suggested content" / app suggestions off -->
+                <SynchronousCommand wcm:action="add">
+                    <Order>9</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SystemPaneSuggestionsEnabled /t REG_DWORD /d 0 /f</CommandLine>
+                    <Description>Disable Start suggested content</Description>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
+                    <Order>10</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SubscribedContent-338388Enabled /t REG_DWORD /d 0 /f</CommandLine>
+                    <Description>Disable Start occasional suggestions</Description>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
+                    <Order>11</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SubscribedContent-338389Enabled /t REG_DWORD /d 0 /f</CommandLine>
+                    <Description>Disable tips and suggestions</Description>
+                </SynchronousCommand>
+
+                <!-- Lock screen tips / ads / Spotlight overlay off -->
+                <SynchronousCommand wcm:action="add">
+                    <Order>12</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SubscribedContent-338387Enabled /t REG_DWORD /d 0 /f</CommandLine>
+                    <Description>Disable lock screen tips and fun facts</Description>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
+                    <Order>13</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v RotatingLockScreenOverlayEnabled /t REG_DWORD /d 0 /f</CommandLine>
+                    <Description>Disable lock screen ad overlay</Description>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
+                    <Order>14</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SoftLandingEnabled /t REG_DWORD /d 0 /f</CommandLine>
+                    <Description>Disable Windows tips</Description>
+                </SynchronousCommand>
+
+                <!-- Debloat: remove selected preinstalled apps (installed + provisioned). Edit the array to taste. -->
+                <SynchronousCommand wcm:action="add">
+                    <Order>15</Order>
+                    <CommandLine>powershell -NoProfile -ExecutionPolicy Bypass -Command "$apps=@('Microsoft.Copilot','Microsoft.Windows.Ai.Copilot.Provider','Microsoft.BingNews','Microsoft.BingWeather','Microsoft.WindowsMaps','Microsoft.WindowsFeedbackHub','Microsoft.GetHelp','Microsoft.Getstarted','Microsoft.MicrosoftOfficeHub','Microsoft.MicrosoftSolitaireCollection','Microsoft.People','Microsoft.MixedReality.Portal','Microsoft.Wallet','MicrosoftTeams','Microsoft.OutlookForWindows','Microsoft.windowscommunicationsapps','MicrosoftWindows.Client.WebExperience','Microsoft.549981C3F5F10'); foreach($a in $apps){ Get-AppxPackage -AllUsers $a | Remove-AppxPackage -AllUsers -ErrorAction SilentlyContinue; Get-AppxProvisionedPackage -Online | Where-Object {$_.DisplayName -eq $a} | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue }"</CommandLine>
+                    <Description>Remove selected preinstalled apps (debloat)</Description>
+                </SynchronousCommand>
+
+                <!-- 25H2 official Copilot-removal policy (backstop; fully triggers once M365 Copilot is present) -->
+                <SynchronousCommand wcm:action="add">
+                    <Order>16</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Software\Policies\Microsoft\WindowsAI" /v RemoveMicrosoftCopilotApp /t REG_DWORD /d 1 /f</CommandLine>
+                    <Description>Enable RemoveMicrosoftCopilotApp policy</Description>
+                </SynchronousCommand>
+
+                <!-- Show all desktop icons: This PC / User files / Network / Control Panel / Recycle Bin -->
+                <SynchronousCommand wcm:action="add">
+                    <Order>17</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v {20D04FE0-3AEA-1069-A2D8-08002B30309D} /t REG_DWORD /d 0 /f</CommandLine>
+                    <Description>Show This PC on desktop</Description>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
+                    <Order>18</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v {59031a47-3f72-44a7-89c5-5595fe6b30ee} /t REG_DWORD /d 0 /f</CommandLine>
+                    <Description>Show user files on desktop</Description>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
+                    <Order>19</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v {F02C1A0D-BE21-4350-88B0-7367FC96EF3C} /t REG_DWORD /d 0 /f</CommandLine>
+                    <Description>Show Network on desktop</Description>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
+                    <Order>20</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v {5399E694-6CE5-48A6-8B95-99E9EE9DD0F8} /t REG_DWORD /d 0 /f</CommandLine>
+                    <Description>Show Control Panel on desktop</Description>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
+                    <Order>21</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v {645FF040-5081-101B-9F08-00AA002F954E} /t REG_DWORD /d 0 /f</CommandLine>
+                    <Description>Show Recycle Bin on desktop</Description>
+                </SynchronousCommand>
+
+                <!-- System tray: always show all icons (no overflow) -->
+                <SynchronousCommand wcm:action="add">
+                    <Order>22</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer" /v EnableAutoTray /t REG_DWORD /d 0 /f</CommandLine>
+                    <Description>Show all tray icons</Description>
+                </SynchronousCommand>
+
+                <!-- Taskbar/Start left-aligned (Win11 has no native 'right') -->
+                <SynchronousCommand wcm:action="add">
+                    <Order>23</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarAl /t REG_DWORD /d 0 /f</CommandLine>
+                    <Description>Left-align taskbar/Start</Description>
+                </SynchronousCommand>
+
+                <!-- Taskbar: hide search box and icon -->
+                <SynchronousCommand wcm:action="add">
+                    <Order>24</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Search" /v SearchboxTaskbarMode /t REG_DWORD /d 0 /f</CommandLine>
+                    <Description>Hide taskbar search</Description>
+                </SynchronousCommand>
+
+                <!-- Explorer opens to This PC -->
+                <SynchronousCommand wcm:action="add">
+                    <Order>25</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v LaunchTo /t REG_DWORD /d 1 /f</CommandLine>
+                    <Description>Open Explorer to This PC</Description>
+                </SynchronousCommand>
+
+                <!-- Show all drives including empty -->
+                <SynchronousCommand wcm:action="add">
+                    <Order>26</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v HideDrivesWithNoMedia /t REG_DWORD /d 0 /f</CommandLine>
+                    <Description>Show all drives incl. empty</Description>
+                </SynchronousCommand>
+
+                <!-- Suppress "Open With" prompts after default-app changes -->
+                <SynchronousCommand wcm:action="add">
+                    <Order>27</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Software\Policies\Microsoft\Windows\Explorer" /v NoNewAppAlert /t REG_DWORD /d 1 /f</CommandLine>
+                    <Description>Suppress new app default prompts</Description>
+                </SynchronousCommand>
+
+                <!-- Show hidden files -->
+                <SynchronousCommand wcm:action="add">
+                    <Order>28</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Hidden /t REG_DWORD /d 1 /f</CommandLine>
+                    <Description>Show hidden files</Description>
+                </SynchronousCommand>
+
+                <!-- Dev: End Task on taskbar right-click -->
+                <SynchronousCommand wcm:action="add">
+                    <Order>29</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\TaskbarDeveloperSettings" /v TaskbarEndTask /t REG_DWORD /d 1 /f</CommandLine>
+                    <Description>Enable End Task on taskbar</Description>
+                </SynchronousCommand>
+
+                <!-- Disable the Sticky Keys (5x Shift) prompt -->
+                <SynchronousCommand wcm:action="add">
+                    <Order>30</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Control Panel\Accessibility\StickyKeys" /v Flags /t REG_SZ /d 506 /f</CommandLine>
+                    <Description>Disable Sticky Keys prompt</Description>
+                </SynchronousCommand>
+
+                <!-- Disable mouse acceleration (raw input for gaming) -->
+                <SynchronousCommand wcm:action="add">
+                    <Order>31</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Control Panel\Mouse" /v MouseSpeed /t REG_SZ /d 0 /f &amp; reg add "HKCU\Control Panel\Mouse" /v MouseThreshold1 /t REG_SZ /d 0 /f &amp; reg add "HKCU\Control Panel\Mouse" /v MouseThreshold2 /t REG_SZ /d 0 /f</CommandLine>
+                    <Description>Disable mouse acceleration</Description>
+                </SynchronousCommand>
+
+                <!-- Dark mode (apps + system) -->
+                <SynchronousCommand wcm:action="add">
+                    <Order>32</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v AppsUseLightTheme /t REG_DWORD /d 0 /f &amp; reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v SystemUsesLightTheme /t REG_DWORD /d 0 /f</CommandLine>
+                    <Description>Enable dark mode</Description>
+                </SynchronousCommand>
+
+                <!-- Show seconds in the taskbar clock -->
+                <SynchronousCommand wcm:action="add">
+                    <Order>33</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v ShowSecondsInSystemClock /t REG_DWORD /d 1 /f</CommandLine>
+                    <Description>Show seconds in clock</Description>
+                </SynchronousCommand>
+
+                <!-- Hide Start "recommendations for tips, new apps, etc." -->
+                <SynchronousCommand wcm:action="add">
+                    <Order>34</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Start_IrisRecommendations /t REG_DWORD /d 0 /f</CommandLine>
+                    <Description>Disable Start recommendations</Description>
+                </SynchronousCommand>
+
+                <!-- Hide OneDrive/ad "sync provider" notifications in File Explorer -->
+                <SynchronousCommand wcm:action="add">
+                    <Order>35</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v ShowSyncProviderNotifications /t REG_DWORD /d 0 /f</CommandLine>
+                    <Description>Disable Explorer ads</Description>
+                </SynchronousCommand>
+
+                <!-- Hide suggested content in the Settings app -->
+                <SynchronousCommand wcm:action="add">
+                    <Order>36</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SubscribedContent-338393Enabled /t REG_DWORD /d 0 /f &amp; reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SubscribedContent-353694Enabled /t REG_DWORD /d 0 /f &amp; reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SubscribedContent-353696Enabled /t REG_DWORD /d 0 /f</CommandLine>
+                    <Description>Disable Settings app suggestions</Description>
+                </SynchronousCommand>
+
+                <!-- Ultimate / High-Performance power plan (unhide Ultimate, set active) -->
+                <SynchronousCommand wcm:action="add">
+                    <Order>37</Order>
+                    <CommandLine>powershell -NoProfile -ExecutionPolicy Bypass -Command "$ultimate='e9a42b02-d5df-448d-aa00-03f14749eb61'; $out=powercfg -duplicatescheme $ultimate; $guid=([regex]::Match(($out -join ' '),'[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}')).Value; if($guid){ powercfg /setactive $guid } else { powercfg /setactive $ultimate }"</CommandLine>
+                    <Description>Ultimate Performance power plan</Description>
+                </SynchronousCommand>
+
+                <!-- NumLock on at boot/login (current user + login screen) -->
+                <SynchronousCommand wcm:action="add">
+                    <Order>38</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Control Panel\Keyboard" /v InitialKeyboardIndicators /t REG_SZ /d 2147483650 /f &amp; reg add "HKU\.DEFAULT\Control Panel\Keyboard" /v InitialKeyboardIndicators /t REG_SZ /d 2147483650 /f</CommandLine>
+                    <Description>NumLock on at boot</Description>
+                </SynchronousCommand>
+
+                <!-- Explorer nav pane: expand to current folder + show all folders -->
+                <SynchronousCommand wcm:action="add">
+                    <Order>39</Order>
+                    <CommandLine>cmd /c reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v NavPaneExpandToCurrentFolder /t REG_DWORD /d 1 /f &amp; reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v NavPaneShowAllFolders /t REG_DWORD /d 1 /f</CommandLine>
+                    <Description>Nav pane expand + show all folders</Description>
+                </SynchronousCommand>
+
+                <!-- Enable System Restore / protection on C: -->
+                <SynchronousCommand wcm:action="add">
+                    <Order>40</Order>
+                    <CommandLine>powershell -NoProfile -Command "Enable-ComputerRestore -Drive 'C:\'; vssadmin Resize ShadowStorage /For=C: /On=C: /MaxSize=10GB"</CommandLine>
+                    <Description>Enable System Restore</Description>
+                </SynchronousCommand>
+
+                <!-- Set the network profile to Private -->
+                <SynchronousCommand wcm:action="add">
+                    <Order>41</Order>
+                    <CommandLine>powershell -NoProfile -Command "Get-NetConnectionProfile | Set-NetConnectionProfile -NetworkCategory Private"</CommandLine>
+                    <Description>Network profile Private</Description>
+                </SynchronousCommand>
+
+            </FirstLogonCommands>
+
+        </component>
+    </settings>
+
+</unattend>
