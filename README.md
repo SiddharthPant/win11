@@ -67,6 +67,8 @@ Private.
 
 ## What Migrations Install
 
+- **`20260618_0000_update-app-installer.ps1`:** updates App Installer/winget before package
+  installs, because stale fresh-install clients can fail on current manifests.
 - **`20260618_0001_install-winget-apps.ps1`:** Chrome, Spotify, Notion, Git, VS Code,
   PowerShell 7, Docker Desktop, PowerToys, Everything, NanaZip, SumatraPDF, ShareX.
 - **`20260618_0002_install-maple-mono-nf.ps1`:** Maple Mono NF from GitHub releases.
