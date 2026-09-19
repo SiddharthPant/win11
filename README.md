@@ -1,10 +1,13 @@
-# Windows 11 25H2 Pro — Dual-Boot Answer File
+# Windows 11 25H2 Pro — Unattended Answer File
 
-Windows 11 setup notes for a dual-boot desktop. `autounattend.xml` handles edition selection,
-policy/registry setup, and first-logon
-personalization after you choose the target disk and complete Microsoft-account OOBE. Run
-`run-migrations.ps1` once from the desktop for apps, font, and all future
-incremental setup changes.
+Windows 11 setup notes for a Windows 11 Pro desktop with Linux tooling in **WSL (Fedora 44)**.
+`autounattend.xml` handles
+edition selection, policy/registry setup, and first-logon personalization after you choose the
+target disk and complete Microsoft-account OOBE. For post-install setup, follow the markdown
+guides in **`setup/`** — readable checklists you keep updated by hand.
+
+> **Script-based backup:** `run-migrations.ps1` + `migrations/` + `optional-migrations/` are
+> kept as an alternative automated flow. They are not needed when following `setup/`.
 
 ## Files
 
@@ -14,10 +17,12 @@ incremental setup changes.
   device encryption. Rename it to `autounattend.xml` for a mostly vanilla install.
 - **`bootable-usb.md`** — step-by-step guide for creating a bootable USB from the official
   Windows 11 ISO, including the FAT32 WIM-splitting flow used from macOS.
-- **`run-migrations.ps1`** — up-only migration runner. It applies pending scripts from
+- **`setup/`** — the primary post-install path: markdown guides for Windows after install and
+  for the Fedora 44 WSL distro.
+- **`run-migrations.ps1`** — *backup*: up-only migration runner. It applies pending scripts from
   `migrations/` and records successful runs in `%ProgramData%\Win11Setup\migrations.json`.
-- **`migrations/`** — post-install setup and future one-off changes, named so they sort in the
-  order you want them applied.
+- **`migrations/`** — *backup*: post-install setup and future one-off changes, named so they
+  sort in the order you want them applied.
 - **`defender-disable-steps.md`** — manual checklist for fully disabling Defender after
   Tamper Protection is turned off in Windows Security.
 - **`optional-migrations/defender/`** — opt-in Defender disable automation to run only after
@@ -32,24 +37,23 @@ incremental setup changes.
    `list disk` -> `select disk N` -> `clean` -> `convert gpt` -> `exit`, replacing `N` with the
    intended Windows disk number, then install to the unallocated space so Windows creates EFI +
    MSR + Windows + Recovery partitions.
-4. **Do not touch any existing data or Linux disks.**
+4. **Do not touch any existing data disks.**
 5. Complete OOBE with the Microsoft account. The first-logon commands run when the desktop
    is created.
 6. Confirm activation if needed: Settings -> System -> Activation. The key in the answer
    file only selects Pro; the digital license is tied to the Microsoft account/hardware.
-7. Install and initialize WSL before migrations so Docker Desktop has a working WSL backend:
-   ```powershell
-   wsl --install
-   ```
-   Reboot when Windows asks. After reboot, open an elevated PowerShell and run `wsl --install`
-   again if Ubuntu has not finished setup, then create the Ubuntu username/password when prompted.
-   Verify with `wsl --list --verbose`.
-8. Open an elevated PowerShell, allow scripts for that terminal with
-   `Set-ExecutionPolicy RemoteSigned -Scope Process`, then run `.\run-migrations.ps1` once with
-   internet access.
-9. Later, pull repo changes, repeat the process-scoped execution policy command in an elevated
-   PowerShell, then run `.\run-migrations.ps1` again to apply only new migrations.
-10. Optional: finish Defender disable using `defender-disable-steps.md`.
+7. Follow **[`setup/windows-after-install.md`](setup/windows-after-install.md)** — WSL (Fedora,
+   not Ubuntu), winget apps, Maple Mono NF, Git defaults, Windows Terminal, Docker group, and
+   Windows Update active hours.
+8. Inside WSL, finish Fedora 44 setup per
+   **[`setup/wsl-fedora-44.md`](setup/wsl-fedora-44.md)** — distro updates, dev tools, and
+   Docker Desktop integration.
+
+   *Backup alternative:* instead of the markdown guides, run the PowerShell migrations:
+   open an elevated PowerShell, `Set-ExecutionPolicy RemoteSigned -Scope Process`, then run
+   `.\run-migrations.ps1` once with internet access; later, pull repo changes and run it again
+   to apply only new migrations.
+9. Optional: finish Defender disable using `defender-disable-steps.md`.
 
 ## What `autounattend.xml` Does
 
@@ -119,9 +123,6 @@ Set-ExecutionPolicy RemoteSigned -Scope Process
 - **Disk safety:** confirm the Windows target disk by size/model before partitioning; do not touch
   existing data or Linux disks.
 - **Takes effect after a reboot:** Developer Mode, Sudo, HAGS.
-- **Fast Startup:** left on by choice. No dual-boot RTC=UTC fix is applied, so expect a Windows/
-  Linux clock offset until you set one side to match. Turn Fast Startup off manually before relying
-  on Linux writes to Windows NTFS partitions.
 - **Defender:** registry policy is applied by the answer file, but a full disable still depends on
   turning Tamper Protection off in the GUI first. After that, run the optional Defender migration
   from `defender-disable-steps.md`. Feature updates can re-enable it.
