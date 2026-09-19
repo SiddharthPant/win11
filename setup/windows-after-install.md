@@ -41,21 +41,29 @@ If winget itself is missing, open the Microsoft Store, let App Installer update,
 
 ## 3. Install apps (winget)
 
+One command installs all of them (`-e` exact-matches each ID):
+
 ```powershell
-winget install --id Google.Chrome -e
-winget install --id Notion.Notion -e
-winget install --id Git.Git -e
-winget install --id Microsoft.VisualStudioCode -e
-winget install --id Microsoft.PowerShell -e
-winget install --id Docker.DockerDesktop -e
-winget install --id Microsoft.PowerToys -e
-winget install --id voidtools.Everything -e
-winget install --id M2Team.NanaZip -e
-winget install --id SumatraPDF.SumatraPDF -e
-winget install --id ShareX.ShareX -e
+winget install -e `
+  Google.Chrome `
+  Notion.Notion `
+  Git.Git `
+  Microsoft.VisualStudioCode `
+  Microsoft.PowerShell `
+  Docker.DockerDesktop `
+  Microsoft.PowerToys `
+  voidtools.Everything `
+  M2Team.NanaZip `
+  SumatraPDF.SumatraPDF `
+  ShareX.ShareX
 ```
 
-To add or remove apps later, edit this block. Browse IDs with `winget search <name>`.
+- Installs still run one after another, but a single invocation skips the per-app
+  startup/source-check overhead — noticeably faster than 11 separate commands. Don't run
+  several winget commands in parallel instead; they contend on the installer mutex and
+  source catalog.
+- If one package fails mid-run, re-run just that ID: `winget install -e <ID>`.
+- To add or remove apps later, edit this block. Browse IDs with `winget search <name>`.
 
 ## 4. Store apps (winget msstore source)
 
