@@ -52,14 +52,25 @@ Then run `wsl --shutdown` from PowerShell and reopen the distro.
 
 ```bash
 sudo dnf install git curl wget unzip tar
-git config --global init.defaultBranch main
-git config --global fetch.prune true
-git config --global pull.ff only
 ```
 
-- Don't set `core.autocrlf` or `core.longpaths` here — those are Windows-only concerns.
-- WSL's git config is separate from the Windows one; set `user.name` / `user.email` **manually
-  per identity** here too.
+Then save the following as `~/.gitconfig` (e.g. `nano ~/.gitconfig` or `code ~/.gitconfig`),
+filling in your name and email:
+
+```ini
+[user]
+    name = Your Name
+    email = you@example.com
+[init]
+    defaultBranch = main
+[fetch]
+    prune = true
+[pull]
+    ff = only
+```
+
+- Don't add `core.autocrlf` or `core.longpaths` here — those are Windows-only concerns.
+- WSL's `.gitconfig` is separate from the Windows one, so fill in your identity in both.
 
 ## 5. Docker — via Docker Desktop integration
 

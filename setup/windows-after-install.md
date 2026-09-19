@@ -84,23 +84,24 @@ winget install --id 9WZDNCRFJ3TJ -s msstore -e   # Netflix
 
 ## 6. Git defaults
 
-Git came from the winget step above. Run:
+Git came from the winget step above. Save the following as `C:\Users\<you>\.gitconfig`
+(PowerShell: `notepad $env:USERPROFILE\.gitconfig`), filling in your name and email:
 
-```powershell
-git config --global init.defaultBranch main
-git config --global core.autocrlf false
-git config --global core.longpaths true
-git config --global fetch.prune true
-git config --global pull.ff only
-git config --global credential.helper manager
-```
-
-Set `user.name` and `user.email` **manually per identity** — they are intentionally not
-prefilled:
-
-```powershell
-git config --global user.name "Your Name"
-git config --global user.email "you@example.com"
+```ini
+[user]
+    name = Your Name
+    email = you@example.com
+[init]
+    defaultBranch = main
+[core]
+    autocrlf = false
+    longpaths = true
+[fetch]
+    prune = true
+[pull]
+    ff = only
+[credential]
+    helper = manager
 ```
 
 ## 7. Windows Terminal (GUI)
