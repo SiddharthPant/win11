@@ -2,6 +2,9 @@
 
 **Target:** Windows 11 Pro desktop.
 
+> **Do this first.** This is step 1 of the `setup/` guides — disable Defender **before** the
+> app installs and tooling in the other guides.
+
 > **Read this first.** On current Windows 11, Defender cannot be killed purely from a script or the registry while **Tamper Protection** is on — it reverts every change. There is no single switch that disables it permanently and survives every feature update. What works is a **layered** approach below. The single most reliable "permanent" option is **Option B (install a third-party AV)**, which puts Defender into passive mode automatically. Pick Option A *or* B; Option C is the nuclear route if you want the service itself gone.
 
 Your `autounattend.xml` already pre-staged the Defender policy registry keys, so several of these are half-done at first boot — they just can't take effect until Tamper Protection is off.
@@ -47,7 +50,7 @@ Set-MpPreference -MAPSReporting Disabled
 Set-MpPreference -SubmitSamplesConsent NeverSend
 ```
 
-Or run the optional migration from the repo root:
+Or run the optional migration from `old-scripts/`:
 
 ```powershell
 Set-ExecutionPolicy RemoteSigned -Scope Process

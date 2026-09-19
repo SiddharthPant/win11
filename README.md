@@ -6,8 +6,9 @@ edition selection, policy/registry setup, and first-logon personalization after 
 target disk and complete Microsoft-account OOBE. For post-install setup, follow the markdown
 guides in **`setup/`** — readable checklists you keep updated by hand.
 
-> **Script-based backup:** `run-migrations.ps1` + `migrations/` + `optional-migrations/` are
-> kept as an alternative automated flow. They are not needed when following `setup/`.
+> **Script-based backup:** `old-scripts/` (migration runner + `migrations/` +
+> `optional-migrations/`) is kept as an alternative automated flow. It is not needed when
+> following `setup/`.
 
 ## Files
 
@@ -19,14 +20,13 @@ guides in **`setup/`** — readable checklists you keep updated by hand.
   Windows 11 ISO, including the FAT32 WIM-splitting flow used from macOS.
 - **`setup/`** — the primary post-install path: markdown guides for Windows after install and
   for the Fedora 44 WSL distro.
-- **`run-migrations.ps1`** — *backup*: up-only migration runner. It applies pending scripts from
-  `migrations/` and records successful runs in `%ProgramData%\Win11Setup\migrations.json`.
-- **`migrations/`** — *backup*: post-install setup and future one-off changes, named so they
-  sort in the order you want them applied.
-- **`defender-disable-steps.md`** — manual checklist for fully disabling Defender after
-  Tamper Protection is turned off in Windows Security.
-- **`optional-migrations/defender/`** — opt-in Defender disable automation to run only after
-  Tamper Protection is manually turned off.
+- **`old-scripts/`** — *backup*: the superseded script-based flow — `run-migrations.ps1`
+  (up-only runner, state in `%ProgramData%\Win11Setup\migrations.json`), `migrations/`
+  (ordered one-off PowerShell changes), and `optional-migrations/defender/` (opt-in Defender
+  automation for after Tamper Protection is manually turned off).
+- **`setup/defender-disable-steps.md`** — manual checklist for fully disabling Defender after
+  Tamper Protection is turned off in Windows Security. Runs first, before the other setup
+  guides.
 
 ## Build Order
 
@@ -42,18 +42,20 @@ guides in **`setup/`** — readable checklists you keep updated by hand.
    is created.
 6. Confirm activation if needed: Settings -> System -> Activation. The key in the answer
    file only selects Pro; the digital license is tied to the Microsoft account/hardware.
-7. Follow **[`setup/windows-after-install.md`](setup/windows-after-install.md)** — WSL (Fedora,
+7. Disable Defender **first**, before installing anything: follow
+   **[`setup/defender-disable-steps.md`](setup/defender-disable-steps.md)** — turn Tamper
+   Protection off in Windows Security, then pick Option A/B/C in that guide.
+8. Follow **[`setup/windows-after-install.md`](setup/windows-after-install.md)** — WSL (Fedora,
    not Ubuntu), winget apps, Maple Mono NF, Git defaults, Windows Terminal, Docker group, and
    Windows Update active hours.
-8. Inside WSL, finish Fedora 44 setup per
+9. Inside WSL, finish Fedora 44 setup per
    **[`setup/wsl-fedora-44.md`](setup/wsl-fedora-44.md)** — distro updates, dev tools, and
    Docker Desktop integration.
 
-   *Backup alternative:* instead of the markdown guides, run the PowerShell migrations:
-   open an elevated PowerShell, `Set-ExecutionPolicy RemoteSigned -Scope Process`, then run
-   `.\run-migrations.ps1` once with internet access; later, pull repo changes and run it again
-   to apply only new migrations.
-9. Optional: finish Defender disable using `defender-disable-steps.md`.
+   *Backup alternative:* instead of the markdown guides, run the PowerShell migrations from
+   `old-scripts/`: open an elevated PowerShell there, `Set-ExecutionPolicy RemoteSigned
+   -Scope Process`, then run `.\run-migrations.ps1` once with internet access; later, pull
+   repo changes and run it again to apply only new migrations.
 
 ## What `autounattend.xml` Does
 
@@ -95,10 +97,11 @@ Private.
 
 To add/remove apps, edit the relevant migration or add a new migration.
 
-## Migrations
+## Migrations (Legacy Backup)
 
-Use migrations for first-run post-install setup and for changes you want to apply later to an
-already-installed PC. Add a new PowerShell file under `migrations/`, commit it, then run:
+The script-based flow now lives in `old-scripts/` and is kept only as a backup for the
+`setup/` markdown guides. To use it, add a PowerShell file under `old-scripts/migrations/`,
+commit it, then run from `old-scripts/`:
 
 ```powershell
 Set-ExecutionPolicy RemoteSigned -Scope Process
@@ -125,4 +128,4 @@ Set-ExecutionPolicy RemoteSigned -Scope Process
 - **Takes effect after a reboot:** Developer Mode, Sudo, HAGS.
 - **Defender:** registry policy is applied by the answer file, but a full disable still depends on
   turning Tamper Protection off in the GUI first. After that, run the optional Defender migration
-  from `defender-disable-steps.md`. Feature updates can re-enable it.
+  from `setup/defender-disable-steps.md`. Feature updates can re-enable it.

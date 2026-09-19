@@ -1,6 +1,7 @@
 # Optional Defender Migration
 
-Run this only after manually turning **Tamper Protection** off in Windows Security.
+Run from `old-scripts/` (so the script finds `migrations/_helpers.ps1`), only after manually
+turning **Tamper Protection** off in Windows Security.
 
 ```powershell
 Set-ExecutionPolicy RemoteSigned -Scope Process

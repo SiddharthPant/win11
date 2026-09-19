@@ -4,6 +4,9 @@ Checklist for the first hour after Windows 11 25H2 Pro finishes OOBE and the `au
 first-logon tweaks have run. Do the sections in order. Run everything in an elevated
 **Terminal (Admin)** unless noted.
 
+> **Before this checklist:** complete **[`defender-disable-steps.md`](defender-disable-steps.md)**
+> — Defender is disabled first, before anything is installed.
+
 - [ ] WSL set up (before Docker Desktop!)
 - [ ] winget refreshed
 - [ ] Apps installed
@@ -13,7 +16,6 @@ first-logon tweaks have run. Do the sections in order. Run everything in an elev
 - [ ] Windows Terminal configured
 - [ ] Docker user group set
 - [ ] Windows Update active hours set
-- [ ] Optional: Defender disabled
 
 ## 1. WSL (Fedora, not Ubuntu)
 
@@ -22,7 +24,7 @@ distro setup lives in **[`wsl-fedora-44.md`](wsl-fedora-44.md)**; the install is
 
 ```powershell
 wsl --list --online          # see available distros; pick the newest Fedora listed
-wsl --install FedoraLinux-42 # replace with the newest Fedora (e.g. 44) from the list
+wsl --install FedoraLinux-44 # replace with the newest Fedora (e.g. 44) from the list
 ```
 
 Reboot when Windows asks, then continue with steps 2–10 below and finish the WSL setup in
@@ -131,12 +133,6 @@ Settings → **Windows Update**:
 - **Advanced options → Active hours:** set **8:00 – 23:00**.
 - In the same Advanced options page, make sure the PC won't auto-restart on its own
   ("Restart needed" prompts should wait for you).
-
-## 10. Optional: disable Defender
-
-Only if you want the full disable: turn **Tamper Protection** off in Windows Security first,
-then follow **[`../defender-disable-steps.md`](../defender-disable-steps.md)**. The scripted
-alternative lives in `../optional-migrations/defender/`.
 
 ## Reboot notes
 
