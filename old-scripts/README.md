@@ -6,7 +6,7 @@ Superseded by the markdown guides in `../setup/`. Kept as a working script-based
   recorded in `%ProgramData%\Win11Setup\migrations.json`, no rollback path.
 - **`migrations/`** — the first-run post-install setup scripts.
 - **`optional-migrations/defender/`** — opt-in Defender disable automation (Tamper Protection
-  must be turned off first — see `../setup/defender-disable-steps.md`).
+  must be turned off first — see `../setup/1-defender-disable-steps.md`).
 
 Run from **this directory** in an elevated PowerShell:
 

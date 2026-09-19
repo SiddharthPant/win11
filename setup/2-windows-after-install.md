@@ -4,31 +4,32 @@ Checklist for the first hour after Windows 11 25H2 Pro finishes OOBE and the `au
 first-logon tweaks have run. Do the sections in order. Run everything in an elevated
 **Terminal (Admin)** unless noted.
 
-> **Before this checklist:** complete **[`defender-disable-steps.md`](defender-disable-steps.md)**
+> **Before this checklist:** complete **[`1-defender-disable-steps.md`](1-defender-disable-steps.md)**
 > — Defender is disabled first, before anything is installed.
 
-- [ ] WSL set up (before Docker Desktop!)
+- [ ] WSL2 + Arch set up (WSL2 powers Podman's machine)
 - [ ] winget refreshed
 - [ ] Apps installed
 - [ ] Store apps installed
 - [ ] Maple Mono NF font installed
 - [ ] Git defaults configured
 - [ ] Windows Terminal configured
-- [ ] Docker user group set
+- [ ] Podman machine set up
 - [ ] Windows Update active hours set
 
-## 1. WSL (Fedora, not Ubuntu)
+## 1. WSL (Arch Linux, not Ubuntu)
 
-Do this **before** installing Docker Desktop so its WSL2 backend has a working distro. Full
-distro setup lives in **[`wsl-fedora-44.md`](wsl-fedora-44.md)**; the install is just:
+WSL2 is required anyway — it powers Podman's machine (section 8). Full
+bootstrap lives in **[`3-wsl-arch.md`](3-wsl-arch.md)** — the official image boots as barebones
+`root` (no sudo, no user) and needs setup. The install is just:
 
 ```powershell
-wsl --list --online          # see available distros; pick the newest Fedora listed
-wsl --install FedoraLinux-44 # replace with the newest Fedora (e.g. 44) from the list
+wsl --list --online    # confirm archlinux is listed
+wsl --install archlinux
 ```
 
-Reboot when Windows asks, then continue with steps 2–10 below and finish the WSL setup in
-`wsl-fedora-44.md`.
+Reboot when Windows asks, then continue with steps 2–9 below and finish the WSL setup in
+`3-wsl-arch.md`.
 
 ## 2. Refresh winget first
 
@@ -52,7 +53,7 @@ winget install -e `
   Git.Git `
   Microsoft.VisualStudioCode `
   Microsoft.PowerShell `
-  Docker.DockerDesktop `
+  RedHat.Podman `
   Microsoft.PowerToys `
   voidtools.Everything `
   M2Team.NanaZip `
@@ -115,16 +116,25 @@ Open **Windows Terminal → Settings**:
 - **Defaults → Appearance → Font face:** `Maple Mono NF`, font size `11`.
 - Leave copy-on-select **off** (default) if you want Ctrl+C/Ctrl+V-style copying.
 
-## 8. Docker Desktop user group
+## 8. Podman machine
 
-Docker Desktop created a local `docker-users` group; join it so Docker works without elevation:
+Podman replaces Docker Desktop. The Windows `podman` CLI runs containers inside a **podman
+machine** — a small WSL2 distro it manages itself (your Arch distro from `3-wsl-arch.md`
+stays separate):
 
 ```powershell
-net localgroup docker-users "$env:USERNAME" /add
+podman machine init
+podman machine start
+podman run quay.io/podman/hello
 ```
 
-Then sign out and back in (or reboot) before using Docker. On first Docker Desktop launch,
-accept the service agreement and confirm it uses the **WSL2** backend.
+- Run `podman machine start` after each Windows reboot before using containers.
+- The CLI speaks docker-style commands (`podman ps`, `podman build`, `podman compose`), and
+  podman also serves the Docker API socket, so Docker-based tools work against it. To type
+  `docker` out of habit, add `Set-Alias docker podman` to your PowerShell profile
+  (`notepad $PROFILE`).
+- Prefer a GUI? `winget install -e RedHat.Podman-Desktop` manages machines and containers
+  visually.
 
 ## 9. Windows Update active hours (GUI)
 
@@ -136,5 +146,5 @@ Settings → **Windows Update**:
 
 ## Reboot notes
 
-A reboot is needed before these take effect: Developer Mode, Sudo for Windows, HAGS (already
-staged by `autounattend.xml`), and the docker-users group membership.
+A reboot is needed before these take effect: Developer Mode, Sudo for Windows, and HAGS
+(already staged by `autounattend.xml`).

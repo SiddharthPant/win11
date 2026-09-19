@@ -1,6 +1,6 @@
 # Windows 11 25H2 Pro — Unattended Answer File
 
-Windows 11 setup notes for a Windows 11 Pro desktop with Linux tooling in **WSL (Fedora 44)**.
+Windows 11 setup notes for a Windows 11 Pro desktop with Linux tooling in **WSL (Arch Linux)**.
 `autounattend.xml` handles
 edition selection, policy/registry setup, and first-logon personalization after you choose the
 target disk and complete Microsoft-account OOBE. For post-install setup, follow the markdown
@@ -19,12 +19,12 @@ guides in **`setup/`** — readable checklists you keep updated by hand.
 - **`bootable-usb.md`** — step-by-step guide for creating a bootable USB from the official
   Windows 11 ISO, including the FAT32 WIM-splitting flow used from macOS.
 - **`setup/`** — the primary post-install path: markdown guides for Windows after install and
-  for the Fedora 44 WSL distro.
+  for the Arch Linux WSL distro.
 - **`old-scripts/`** — *backup*: the superseded script-based flow — `run-migrations.ps1`
   (up-only runner, state in `%ProgramData%\Win11Setup\migrations.json`), `migrations/`
   (ordered one-off PowerShell changes), and `optional-migrations/defender/` (opt-in Defender
   automation for after Tamper Protection is manually turned off).
-- **`setup/defender-disable-steps.md`** — manual checklist for fully disabling Defender after
+- **`setup/1-defender-disable-steps.md`** — manual checklist for fully disabling Defender after
   Tamper Protection is turned off in Windows Security. Runs first, before the other setup
   guides.
 
@@ -43,14 +43,14 @@ guides in **`setup/`** — readable checklists you keep updated by hand.
 6. Confirm activation if needed: Settings -> System -> Activation. The key in the answer
    file only selects Pro; the digital license is tied to the Microsoft account/hardware.
 7. Disable Defender **first**, before installing anything: follow
-   **[`setup/defender-disable-steps.md`](setup/defender-disable-steps.md)** — turn Tamper
+   **[`setup/1-defender-disable-steps.md`](setup/1-defender-disable-steps.md)** — turn Tamper
    Protection off in Windows Security, then pick Option A/B/C in that guide.
-8. Follow **[`setup/windows-after-install.md`](setup/windows-after-install.md)** — WSL (Fedora,
-   not Ubuntu), winget apps, Maple Mono NF, Git defaults, Windows Terminal, Docker group, and
+8. Follow **[`setup/2-windows-after-install.md`](setup/2-windows-after-install.md)** — WSL (Arch,
+   not Ubuntu), winget apps, Maple Mono NF, Git defaults, Windows Terminal, Podman machine, and
    Windows Update active hours.
-9. Inside WSL, finish Fedora 44 setup per
-   **[`setup/wsl-fedora-44.md`](setup/wsl-fedora-44.md)** — distro updates, dev tools, and
-   Docker Desktop integration.
+9. Inside WSL, bootstrap the Arch Linux distro per
+   **[`setup/3-wsl-arch.md`](setup/3-wsl-arch.md)** — it boots barebones as root: create your user,
+   install basics, then Git and native rootless Podman.
 
    *Backup alternative:* instead of the markdown guides, run the PowerShell migrations from
    `old-scripts/`: open an elevated PowerShell there, `Set-ExecutionPolicy RemoteSigned
@@ -128,4 +128,4 @@ Set-ExecutionPolicy RemoteSigned -Scope Process
 - **Takes effect after a reboot:** Developer Mode, Sudo, HAGS.
 - **Defender:** registry policy is applied by the answer file, but a full disable still depends on
   turning Tamper Protection off in the GUI first. After that, run the optional Defender migration
-  from `setup/defender-disable-steps.md`. Feature updates can re-enable it.
+  from `setup/1-defender-disable-steps.md`. Feature updates can re-enable it.

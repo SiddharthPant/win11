@@ -11,4 +11,4 @@ Set-ExecutionPolicy RemoteSigned -Scope Process
 ```
 
 This automates the PowerShell, policy-refresh, and scheduled-task parts from
-`defender-disable-steps.md`. It does not and cannot turn Tamper Protection off.
+`1-defender-disable-steps.md`. It does not and cannot turn Tamper Protection off.

@@ -1,7 +1,7 @@
 # Post-Install Setup Guides (Markdown Edition)
 
 Read-first, edit-by-hand checklists for everything that happens **after Windows 11 finishes
-installing** — the Windows side, and the Fedora 44 WSL distro.
+installing** — the Windows side, and the Arch Linux WSL distro.
 
 These guides replace the script-runner workflow for daily use. There is nothing to execute:
 read each file, copy the commands you need, and tick the checkboxes. To change your setup,
@@ -14,13 +14,13 @@ edit the markdown and commit it.
 
 ## Guides, in order
 
-1. **`defender-disable-steps.md`** — do this **first**, before installing anything: turn
+1. **`1-defender-disable-steps.md`** — do this **first**, before installing anything: turn
    Tamper Protection off in Windows Security, then pick one of the disable options in the
    guide.
-2. **`windows-after-install.md`** — first boot on Windows: WSL install, winget apps, Maple Mono
-   NF font, Git defaults, Windows Terminal, Docker group, Windows Update policy.
-3. **`wsl-fedora-44.md`** — inside WSL: Fedora distro updates, systemd, dev packages, Git, and
-   Docker Desktop integration.
+2. **`2-windows-after-install.md`** — first boot on Windows: WSL install, winget apps, Maple Mono
+   NF font, Git defaults, Windows Terminal, Podman machine, Windows Update policy.
+3. **`3-wsl-arch.md`** — inside WSL: Arch Linux bootstrap from its barebones root-only image
+   (sudo, user account, default user), systemd, dev packages, Git, and native rootless Podman.
 
 ## Conventions
 
