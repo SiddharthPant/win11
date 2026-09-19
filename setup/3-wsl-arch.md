@@ -34,6 +34,12 @@ Reboot when Windows asks. Launch the distro from the Start menu or `wsl -d archl
 The first session runs as `root`. Set things up in order:
 
 ```bash
+# locale first — every command warns about setlocale until it's generated
+sed -i 's/^#en_US\.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
+locale-gen
+echo 'LANG=en_US.UTF-8' > /etc/locale.conf
+ln -sf /etc/locale.conf /etc/default/locale   # WSL otherwise forces the Windows locale
+
 passwd                 # set a root password — your recovery path if sudo breaks
 
 pacman -Syu            # sync + full upgrade (do this first, always)
@@ -43,12 +49,6 @@ pacman -S --needed sudo which git wget unzip
 
 # allow the wheel group to sudo
 echo '%wheel ALL=(ALL:ALL) ALL' > /etc/sudoers.d/wheel
-
-# generate the en_US.UTF-8 locale (barebones image ships none)
-sed -i 's/^#en_US\.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
-locale-gen
-echo 'LANG=en_US.UTF-8' > /etc/locale.conf
-ln -sf /etc/locale.conf /etc/default/locale   # WSL otherwise forces the Windows locale
 
 # your actual user
 useradd -m -G wheel -s /bin/bash <username>
