@@ -42,6 +42,10 @@ winget source update
 
 If winget itself is missing, open the Microsoft Store, let App Installer update, and retry.
 
+### Install Latest PowerShell
+Install the latest PowerShell directly from its [release page](https://github.com/PowerShell/PowerShell/releases) in GitHub because winget timesout for some reason. After installing it restart your terminal.
+
+
 ## 3. Install apps (winget)
 
 One command installs all of them (`-e` exact-matches each ID):
@@ -52,13 +56,22 @@ winget install -e `
   Notion.Notion `
   Git.Git `
   Microsoft.VisualStudioCode `
-  Microsoft.PowerShell `
   RedHat.Podman `
   Microsoft.PowerToys `
   voidtools.Everything `
   M2Team.NanaZip `
   SumatraPDF.SumatraPDF `
-  ShareX.ShareX
+  ShareX.ShareX `
+  jdx.mise `
+  OpenJS.NodeJS `
+  eza-community.eza `
+  BurntSushi.ripgrep.MSVC `
+  ajeetdsouza.zoxide `
+  junegunn.fzf `
+  sharkdp.fd `
+  sharkdp.bat `
+  allankoechke.which `
+  vim.vim
 ```
 
 - Installs still run one after another, but a single invocation skips the per-app
@@ -74,16 +87,8 @@ winget install -e `
 winget install --id 9NCBCSZSJRSB -s msstore -e   # Spotify (desktop installer rejects admin installs; use Store)
 winget install --id 9NKSQGP7F2NH -s msstore -e   # WhatsApp
 winget install --id 9WZDNCRFJ3TJ -s msstore -e   # Netflix
+winget install --id 9P4CLT2RJ1RS -s msstore -e   # MusicBee
 ```
-
-## 5. Maple Mono NF font (manual)
-
-1. Download the latest release asset
-   [`MapleMono-NF.zip`](https://github.com/subframe7536/maple-font/releases/latest) from the
-   maple-font GitHub releases.
-2. Extract the zip.
-3. Select all `.ttf` files → right-click → **Install for all users** (needs admin, so Windows
-   Terminal and elevated apps can see it).
 
 ## 6. Git defaults
 
@@ -113,7 +118,6 @@ Open **Windows Terminal → Settings**:
 
 - **Startup → Default profile:** `PowerShell` (the PowerShell 7 / pwsh one, not
   "Windows PowerShell").
-- **Defaults → Appearance → Font face:** `Maple Mono NF`, font size `11`.
 - Leave copy-on-select **off** (default) if you want Ctrl+C/Ctrl+V-style copying.
 
 ## 8. Podman machine

@@ -45,7 +45,7 @@ passwd                 # set a root password — your recovery path if sudo brea
 pacman -Syu            # sync + full upgrade (do this first, always)
 
 # sudo + the small basics the image leaves out
-pacman -S --needed sudo which git wget unzip
+pacman -S --needed sudo which git wget unzip vim fzf zoxide fd ripgrep
 
 # allow the wheel group to sudo
 echo '%wheel ALL=(ALL:ALL) ALL' > /etc/sudoers.d/wheel
@@ -121,13 +121,22 @@ No Docker Desktop integration here — install Podman directly in the distro. In
 Linux distro there is no podman machine; containers run natively:
 
 ```bash
-sudo pacman -S podman
-echo "<username>:100000:65536" | sudo tee -a /etc/subuid /etc/subgid
+sudo pacman -S podman podman-compose shadow
+```
+Choose crun when asked which runtime to choose from:
+```
+resolving dependencies...
+:: There are 3 providers available for oci-runtime:
+:: Repository extra
+   1) crun  2) krun  3) runc
+
+Enter a number (default=1): 1
+```
+Add `command="mount --make-rshared /"` to `[boot]` section in `/etc/wsl.conf`.
+Then run a container
+```bash
 podman run quay.io/podman/hello
 ```
-
-The subordinate UID/GID mapping (`/etc/subuid`, `/etc/subgid`) is what makes rootless
-containers work. For compose support: `sudo pacman -S podman-compose`.
 
 Known Arch-on-WSL issues with rootless containers (per the
 [ArchWiki WSL page](https://wiki.archlinux.org/title/Install_Arch_Linux_on_WSL)):
