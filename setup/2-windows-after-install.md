@@ -71,7 +71,10 @@ winget install -e `
   sharkdp.fd `
   sharkdp.bat `
   allankoechke.which `
-  vim.vim
+  vim.vim `
+  Rem0o.FanControl `
+  LibreHardwareMonitor.LibreHardwareMonitor `
+  LocalSend.LocalSend
 ```
 
 - Installs still run one after another, but a single invocation skips the per-app
@@ -81,6 +84,7 @@ winget install -e `
 - If one package fails mid-run, re-run just that ID: `winget install -e <ID>`.
 - To add or remove apps later, edit this block. Browse IDs with `winget search <name>`.
 
+Vim requires you to setup its installer path in system PATH variable as its not automatically setup.
 ## 4. Store apps (winget msstore source)
 
 ```powershell
