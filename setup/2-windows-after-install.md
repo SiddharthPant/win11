@@ -11,6 +11,7 @@ first-logon tweaks have run. Do the sections in order. Run everything in an elev
 - [ ] winget refreshed
 - [ ] Apps installed
 - [ ] Store apps installed
+- [ ] VS Build Tools installed (MSVC linker for Rust)
 - [ ] Maple Mono NF font installed
 - [ ] Git defaults configured
 - [ ] Windows Terminal configured
@@ -93,6 +94,22 @@ winget install --id 9NKSQGP7F2NH -s msstore -e   # WhatsApp
 winget install --id 9WZDNCRFJ3TJ -s msstore -e   # Netflix
 winget install --id 9P4CLT2RJ1RS -s msstore -e   # MusicBee
 ```
+
+## 5. Visual Studio Build Tools (MSVC linker)
+
+Rust's default Windows target (`x86_64-pc-windows-msvc`) needs `link.exe` from the MSVC toolset.
+Without it, every `cargo build` / `mise install` of cargo tools (sqlx-cli, askama_fmt, …) fails
+with `linker 'link.exe' not found`. VS Code is NOT sufficient. Version-agnostic winget ID →
+installs the current stable (VS 2026):
+
+```powershell
+winget install --id Microsoft.VisualStudio.BuildTools --exact --override "--quiet --wait --norestart --nocache --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"
+```
+
+- `--includeRecommended` pulls the MSVC v143+ compiler/linker plus the Windows SDK.
+- ~2–3 GB, several minutes, UAC prompt. No PATH setup needed — `cargo`/`cc` auto-detect it
+  via `vswhere`; just use a new terminal afterwards.
+- Do this before the first `mise install` in a Rust project.
 
 ## 6. Git defaults
 
