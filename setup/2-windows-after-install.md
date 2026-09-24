@@ -84,6 +84,84 @@ winget install --id 9WZDNCRFJ3TJ -s msstore -e   # Netflix
 winget install --id 9P4CLT2RJ1RS -s msstore -e   # MusicBee
 ```
 
+## PostgreSQL 18
+
+Not in the bulk list above — it needs installer switches (unattended mode + a pinned port)
+rather than a plain `winget install -e`:
+
+```powershell
+winget install --id PostgreSQL.PostgreSQL.18 --exact --override '--mode unattended --unattendedmodeui none --serverport 5432'
+```
+
+- `--override` **replaces** winget's default arguments with EDB's own installer switches, so the
+  interactive wizard never runs. UAC still prompts once.
+- `--mode unattended --unattendedmodeui none` suppresses the GUI and every prompt;
+  `--serverport 5432` states the port explicitly instead of leaning on the default.
+- Keep `--superpassword` off — the guide uses the installer's defaults as-is. What lands:
+  - Superuser role `postgres`, password `postgres` (the unattended default).
+  - Port 5432; auth is `scram-sha-256`, so a password is always required over TCP.
+  - Install dir `C:\Program Files\PostgreSQL\18\`, data dir `...\data\`, with
+    `postgresql.conf` and `pg_hba.conf` inside it.
+  - Windows service `postgresql-x64-18`, start type Automatic, running as
+    `NT AUTHORITY\NetworkService`.
+  - Bundled extras: pgAdmin 4 and StackBuilder.
+
+### Put `psql` on PATH
+
+The EDB installer does not add its `bin` folder to PATH. Append it to the system PATH:
+
+```powershell
+$bin  = 'C:\Program Files\PostgreSQL\18\bin'
+$path = [Environment]::GetEnvironmentVariable('PATH', 'Machine')
+if ($path -notlike "*$bin*") {
+  [Environment]::SetEnvironmentVariable('PATH', "$path;$bin", 'Machine')
+}
+```
+
+Open a new terminal afterwards for the change to apply.
+
+### Create the password file
+
+Stops `psql` prompting on every connection. `libpq` reads `%APPDATA%\postgresql\pgpass.conf`, one
+`host:port:database:username:password` line per role — `*` matches any database:
+
+```powershell
+$dir = "$env:APPDATA\postgresql"
+New-Item -ItemType Directory -Path $dir -Force | Out-Null
+@(
+  'localhost:5432:*:postgres:postgres'
+  '127.0.0.1:5432:*:postgres:postgres'
+) | Set-Content "$dir\pgpass.conf"
+```
+
+### Verify
+
+```powershell
+Get-Service postgresql-x64-18    # Running
+psql --version                   # psql (PostgreSQL) 18.6
+psql -U postgres -h localhost -d postgres -c "select version();"    # connects with no prompt
+```
+
+### Connect
+
+```powershell
+psql -U postgres -h localhost
+```
+
+- Windows has no Unix socket, so bare `psql -U postgres` also connects to localhost:5432.
+- In-session: `\l` databases, `\dt` tables, `\conninfo` current connection, `\?` help, `\q` quit.
+- URI form, for tools and env vars (sqlx, pgAdmin, containers):
+  `postgresql://postgres:postgres@localhost:5432/postgres`
+
+### Restarting the service
+
+```powershell
+Restart-Service postgresql-x64-18    # admin; run after editing pg_hba.conf / postgresql.conf
+```
+
+The data directory belongs to the service account, not your user — edit those config files from an
+elevated terminal.
+
 ## Visual Studio Build Tools (MSVC linker)
 
 Rust's default Windows target (`x86_64-pc-windows-msvc`) needs `link.exe` from the MSVC toolset.

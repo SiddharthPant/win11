@@ -17,7 +17,7 @@ commit it.
 1. **`1-defender-disable-steps.md`** — do this **first**, before installing anything: turn
    Tamper Protection off in Windows Security, then pick one of the disable options in the
    guide.
-2. **`2-windows-after-install.md`** — first boot on Windows: WSL install, winget apps, Maple Mono
+2. **`2-windows-after-install.md`** — first boot on Windows: WSL install, winget apps, PostgreSQL 18, Maple Mono
    NF font, Git defaults, Windows Terminal, Podman machine, Windows Update policy.
 3. **`3-wsl-arch.md`** — inside WSL: Arch Linux bootstrap from its barebones root-only image
    (sudo, user account, default user), systemd, dev packages, Git, and native rootless Podman.
