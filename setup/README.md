@@ -4,8 +4,8 @@ Read-first, edit-by-hand checklists for everything that happens **after Windows 
 installing** — the Windows side, and the Arch Linux WSL distro.
 
 These guides replace the script-runner workflow for daily use. There is nothing to execute:
-read each file, copy the commands you need, and tick the checkboxes. To change your setup,
-edit the markdown and commit it.
+read each file and copy the commands you need. To change your setup, edit the markdown and
+commit it.
 
 > **Backup path:** `old-scripts/` at the repo root (the migration runner plus `migrations/`
 > and `optional-migrations/`) is kept as the script-based alternative. If you ever want the
@@ -25,6 +25,8 @@ edit the markdown and commit it.
 ## Conventions
 
 - Each guide is an ordered checklist; do the sections top to bottom.
+- Section headings are unnumbered and referenced by name ("see **Podman machine**"), so inserting
+  or reordering a section never forces renumbering of headings or cross-guide references.
 - Commands are copy-pasteable. Admin/privileged blocks are labeled with where to run them.
 - Personal values (usernames, emails, identities) are intentionally not automated — set them
   per machine, per identity, by hand.

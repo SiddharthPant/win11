@@ -11,7 +11,7 @@ Your `autounattend.xml` already pre-staged the Defender policy registry keys, so
 
 ---
 
-## Step 0 — Prerequisite: turn off Tamper Protection (mandatory)
+## Turn off Tamper Protection first (mandatory)
 
 Nothing below sticks until this is done. For this unmanaged local install, do it in the GUI; registry/GPO/PowerShell changes to protected settings are ignored while Tamper Protection is on.
 
@@ -19,7 +19,7 @@ Nothing below sticks until this is done. For this unmanaged local install, do it
 2. **Virus & threat protection** → under *Virus & threat protection settings*, click **Manage settings**.
 3. Toggle **Tamper Protection** → **Off**. Accept the UAC prompt.
 
-Leave Windows Security open; you'll use it again in Step 1.
+Leave Windows Security open; you'll use it again in **Turn off the real-time toggles**.
 
 ---
 
@@ -27,16 +27,16 @@ Leave Windows Security open; you'll use it again in Step 1.
 
 Holds for normal daily use. A major feature update can reset some of these, so re-check afterward (see "After Windows Updates").
 
-### Step 1 — Turn off the real-time toggles (GUI)
+### Turn off the real-time toggles (GUI)
 
 Same **Manage settings** pane, turn all of these **Off**:
 
 - Real-time protection
 - Cloud-delivered protection
 - Automatic sample submission
-- Tamper Protection (already off from Step 0)
+- Tamper Protection (already off — see **Turn off Tamper Protection first**)
 
-### Step 2 — Lock it down via PowerShell (run as admin)
+### Lock it down via PowerShell (run as admin)
 
 With Tamper Protection off, these now apply. Open **Terminal (Admin)**:
 
@@ -60,9 +60,9 @@ Set-ExecutionPolicy RemoteSigned -Scope Process
 ```
 
 This also reapplies the registry policy backstops, runs `gpupdate /force`, and disables the
-Windows Defender scheduled tasks in Step 4.
+Windows Defender scheduled tasks (see **Disable the scheduled scans**).
 
-### Step 3 — Group Policy (Pro has gpedit)
+### Group Policy (Pro has gpedit)
 
 Run `gpedit.msc`:
 
@@ -80,7 +80,7 @@ Then apply:
 gpupdate /force
 ```
 
-### Step 4 — Disable the scheduled scans
+### Disable the scheduled scans
 
 This is the "virus scans" part. Open **Task Scheduler** (`taskschd.msc`) →
 **Task Scheduler Library → Microsoft → Windows → Windows Defender**, and **Disable** all four:
@@ -90,13 +90,13 @@ This is the "virus scans" part. Open **Task Scheduler** (`taskschd.msc`) →
 - Windows Defender Scheduled Scan
 - Windows Defender Verification
 
-### Step 5 — (Optional) SmartScreen / reputation checks
+### (Optional) SmartScreen / reputation checks
 
 If you also want the file/web reputation prompts gone:
 
 - Windows Security → **App & browser control → Reputation-based protection settings** → turn off *Check apps and files*, *SmartScreen for Microsoft Edge*, *Potentially unwanted app blocking*.
 
-### Step 6 — Reboot and verify
+### Reboot and verify
 
 ```powershell
 Get-MpComputerStatus | Select RealTimeProtectionEnabled, AntivirusEnabled, BehaviorMonitorEnabled, IsTamperProtected
@@ -110,7 +110,7 @@ Get-MpComputerStatus | Select RealTimeProtectionEnabled, AntivirusEnabled, Behav
 
 When a registered AV product is installed, Windows **automatically** flips Defender into **passive mode** — real-time scanning steps aside without you fighting Tamper Protection, and it stays that way across updates.
 
-1. Do **Step 0** (Tamper Protection off) — optional but recommended.
+1. Do **Turn off Tamper Protection first** — optional but recommended.
 2. Install any reputable third-party AV.
 3. Verify:
    ```powershell
@@ -126,7 +126,7 @@ Caveat: in passive mode some components (network inspection, AMSI, periodic scan
 
 Only if Options A/B aren't enough. The `WinDefend` service is a protected process (PPL) and **cannot** be stopped or set to disabled normally, even as admin. The service start type can only be changed offline / in Safe Mode, and **feature updates may re-protect and re-enable it**.
 
-1. Tamper Protection **off** (Step 0).
+1. Tamper Protection **off** (see **Turn off Tamper Protection first**).
 2. Boot into **Safe Mode**: Settings → System → Recovery → Advanced startup → Restart now → Troubleshoot → Advanced options → Startup Settings → Restart → press **4**.
 3. In Safe Mode, in the registry (`regedit`), set the `Start` value to `4` (disabled) for the Defender services under `HKLM\SYSTEM\CurrentControlSet\Services\`:
    - `WinDefend`, `WdNisSvc`, `WdNisDrv`, `WdFilter`, `Sense`
@@ -145,7 +145,7 @@ Cumulative and especially **feature updates** can silently:
 - Re-protect / re-enable the WinDefend service
 - Re-stage removed apps (Copilot, etc.)
 
-After any large update, re-run the **Step 6 verify** command. If `RealTimeProtectionEnabled` came back `True`, re-confirm Tamper Protection is off and re-apply Steps 1–4 (or just rely on Option B, which survives updates best).
+After any large update, re-run the **Reboot and verify** commands. If `RealTimeProtectionEnabled` came back `True`, re-confirm Tamper Protection is off and re-apply **Turn off the real-time toggles** through **Disable the scheduled scans** (or just rely on Option B, which survives updates best).
 
 ---
 

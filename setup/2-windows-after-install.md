@@ -7,20 +7,9 @@ first-logon tweaks have run. Do the sections in order. Run everything in an elev
 > **Before this checklist:** complete **[`1-defender-disable-steps.md`](1-defender-disable-steps.md)**
 > — Defender is disabled first, before anything is installed.
 
-- [ ] WSL2 + Arch set up (WSL2 powers Podman's machine)
-- [ ] winget refreshed
-- [ ] Apps installed
-- [ ] Store apps installed
-- [ ] VS Build Tools installed (MSVC linker for Rust)
-- [ ] Maple Mono NF font installed
-- [ ] Git defaults configured
-- [ ] Windows Terminal configured
-- [ ] Podman machine set up
-- [ ] Windows Update active hours set
+## WSL (Arch Linux, not Ubuntu)
 
-## 1. WSL (Arch Linux, not Ubuntu)
-
-WSL2 is required anyway — it powers Podman's machine (section 8). Full
+WSL2 is required anyway — it powers Podman's machine (the **Podman machine** section). Full
 bootstrap lives in **[`3-wsl-arch.md`](3-wsl-arch.md)** — the official image boots as barebones
 `root` (no sudo, no user) and needs setup. The install is just:
 
@@ -29,10 +18,10 @@ wsl --list --online    # confirm archlinux is listed
 wsl --install archlinux
 ```
 
-Reboot when Windows asks, then continue with steps 2–9 below and finish the WSL setup in
+Reboot when Windows asks, then continue with the sections below and finish the WSL setup in
 `3-wsl-arch.md`.
 
-## 2. Refresh winget first
+## Refresh winget first
 
 Fresh Windows images ship a stale App Installer client that fails on current manifests.
 
@@ -47,7 +36,7 @@ If winget itself is missing, open the Microsoft Store, let App Installer update,
 Install the latest PowerShell directly from its [release page](https://github.com/PowerShell/PowerShell/releases) in GitHub because winget timesout for some reason. After installing it restart your terminal.
 
 
-## 3. Install apps (winget)
+## Install apps (winget)
 
 One command installs all of them (`-e` exact-matches each ID):
 
@@ -86,7 +75,7 @@ winget install -e `
 - To add or remove apps later, edit this block. Browse IDs with `winget search <name>`.
 
 Vim requires you to setup its installer path in system PATH variable as its not automatically setup.
-## 4. Store apps (winget msstore source)
+## Store apps (winget msstore source)
 
 ```powershell
 winget install --id 9NCBCSZSJRSB -s msstore -e   # Spotify (desktop installer rejects admin installs; use Store)
@@ -95,7 +84,7 @@ winget install --id 9WZDNCRFJ3TJ -s msstore -e   # Netflix
 winget install --id 9P4CLT2RJ1RS -s msstore -e   # MusicBee
 ```
 
-## 5. Visual Studio Build Tools (MSVC linker)
+## Visual Studio Build Tools (MSVC linker)
 
 Rust's default Windows target (`x86_64-pc-windows-msvc`) needs `link.exe` from the MSVC toolset.
 Without it, every `cargo build` / `mise install` of cargo tools (sqlx-cli, askama_fmt, …) fails
@@ -111,7 +100,7 @@ winget install --id Microsoft.VisualStudio.BuildTools --exact --override "--quie
   via `vswhere`; just use a new terminal afterwards.
 - Do this before the first `mise install` in a Rust project.
 
-## 6. Git defaults
+## Git defaults
 
 Git came from the winget step above. Save the following as `C:\Users\<you>\.gitconfig`
 (PowerShell: `notepad $env:USERPROFILE\.gitconfig`), filling in your name and email:
@@ -133,7 +122,7 @@ Git came from the winget step above. Save the following as `C:\Users\<you>\.gitc
     helper = manager
 ```
 
-## 7. Windows Terminal (GUI)
+## Windows Terminal (GUI)
 
 Open **Windows Terminal → Settings**:
 
@@ -141,7 +130,7 @@ Open **Windows Terminal → Settings**:
   "Windows PowerShell").
 - Leave copy-on-select **off** (default) if you want Ctrl+C/Ctrl+V-style copying.
 
-## 8. Podman machine
+## Podman machine
 
 Podman replaces Docker Desktop. The Windows `podman` CLI runs containers inside a **podman
 machine** — a small WSL2 distro it manages itself (your Arch distro from `3-wsl-arch.md`
@@ -161,7 +150,7 @@ podman run quay.io/podman/hello
 - Prefer a GUI? `winget install -e RedHat.Podman-Desktop` manages machines and containers
   visually.
 
-## 9. Windows Update active hours (GUI)
+## Windows Update active hours (GUI)
 
 Settings → **Windows Update**:
 
