@@ -64,7 +64,8 @@ winget install -e `
   vim.vim `
   Rem0o.FanControl `
   LibreHardwareMonitor.LibreHardwareMonitor `
-  LocalSend.LocalSend
+  LocalSend.LocalSend `
+  Microsoft.BingWallpaper
 ```
 
 - Installs still run one after another, but a single invocation skips the per-app
@@ -73,6 +74,8 @@ winget install -e `
   source catalog.
 - If one package fails mid-run, re-run just that ID: `winget install -e <ID>`.
 - To add or remove apps later, edit this block. Browse IDs with `winget search <name>`.
+- Bing Wallpaper replaces Windows Spotlight for a daily desktop wallpaper — Spotlight on this
+  setup kept cycling its 4 built-in fallback images instead of downloading new ones.
 
 Vim requires you to setup its installer path in system PATH variable as its not automatically setup.
 ## Store apps (winget msstore source)
