@@ -61,7 +61,7 @@ guides in **`setup/`** — readable checklists you keep updated by hand.
 
 **During specialize / machine-wide:** selects Windows 11 Pro, prevents automatic BitLocker
 device encryption, applies Defender policy values, lowers telemetry, disables web search,
-Widgets/news, Spotlight/consumer content, Copilot/Windows AI policy, location, advertising ID,
+Widgets/news, consumer content, Copilot/Windows AI policy, advertising ID,
 AutoRun, and Start Recommended. It also enables long paths, Developer Mode, Sudo for Windows
 inline mode, and Hardware-Accelerated GPU Scheduling. Locale defaults to en-US UI, en-IN region,
 US keyboard, and India Standard Time; customize these before install if needed.
