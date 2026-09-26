@@ -65,7 +65,8 @@ winget install -e `
   Rem0o.FanControl `
   LibreHardwareMonitor.LibreHardwareMonitor `
   LocalSend.LocalSend `
-  Microsoft.BingWallpaper
+  Microsoft.BingWallpaper `
+  jqlang.jq
 ```
 
 - Installs still run one after another, but a single invocation skips the per-app
@@ -238,6 +239,149 @@ Settings → **Windows Update**:
 - **Advanced options → Active hours:** set **8:00 – 23:00**.
 - In the same Advanced options page, make sure the PC won't auto-restart on its own
   ("Restart needed" prompts should wait for you).
+
+## MacBook ↔ PC (SSH + SMB)
+
+SSH for the CLI and SMB for the file browser, both directions, over the home LAN. Both are
+built into Windows and macOS — nothing to install beyond the OpenSSH Server feature.
+
+| Machine | Name | IP | Link | User |
+|---|---|---|---|---|
+| PC | `pinaka` | `192.168.29.30` | Ethernet | `sidpa` (Microsoft account) |
+| MacBook Pro | `mbp` | `192.168.29.112` | Wi-Fi | `sid` |
+
+### Fixed IPs + hosts files (not `.local`)
+
+`Siddharths-MacBook-Pro.local` doesn't resolve from the PC even though the IP works for both SSH
+and SMB. `.local` names use mDNS (multicast UDP 5353), and the JioFiber router doesn't bridge
+multicast between its Ethernet and Wi-Fi sides — unicast crosses fine, so IPs work. The Windows
+side is fine (network profile Private, mDNS firewall rules on).
+
+1. **Reserve both IPs** in the JioFiber admin page (`http://192.168.29.1` → Network → LAN →
+   DHCP / static lease). On the Mac, set **Wi-Fi → Details → Private Wi-Fi address** to
+   **Off** or **Fixed** for this network, or its MAC changes and the reservation stops matching.
+2. **Windows** `C:\Windows\System32\drivers\etc\hosts` (edit as admin):
+   ```
+   192.168.29.112 mbp Siddharths-MacBook-Pro.local # My MacBook Pro Laptop
+   ```
+3. **Mac** `/etc/hosts`:
+   ```bash
+   echo "192.168.29.30   pinaka" | sudo tee -a /etc/hosts
+   ```
+   No `pinaka.local` alias — macOS sends `.local` to Bonjour first and can stall.
+
+### PC → Mac
+
+On the Mac, **System Settings → General → Sharing**:
+
+- **Remote Login** on (ⓘ → allow `sid`; optionally "Allow full disk access for remote users").
+- **File Sharing** on → ⓘ → **Options…** → tick **Share files and folders using SMB**, and under
+  *Windows File Sharing* tick `sid` and enter its password.
+- Optional: **Battery → Options** → "Wake for network access" so a sleeping Mac stays reachable.
+
+`~\.ssh\config` on the PC (the key is the existing `id_rsa`, already in the Mac's
+`~/.ssh/authorized_keys`):
+
+```
+Host mac
+    HostName mbp
+    User sid
+    IdentityFile ~/.ssh/id_rsa
+```
+
+- CLI: `ssh mac`.
+- Explorer: `\\mbp` in the address bar, sign in as `sid`. For a drive letter:
+  `net use M: \\mbp\sid /persistent:yes`.
+
+### Mac → PC: OpenSSH Server
+
+1. **Settings → System → Optional features → View features** (the "available features" dialog —
+   the main page search only lists *installed* features, which is just OpenSSH Client) →
+   search `openssh` → **OpenSSH Server** → Next → Add. CLI equivalent:
+   `Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0`.
+2. `services.msc` → **OpenSSH SSH Server** → Startup type **Automatic** → **Start**.
+3. Firewall: the install creates **OpenSSH SSH Server (sshd)** (`OpenSSH-Server-In-TCP`) already
+   scoped to **Private** — nothing to do. Check with `wf.msc` → Inbound Rules.
+4. Default shell → PowerShell 7 instead of `cmd.exe`: `regedit` →
+   `HKEY_LOCAL_MACHINE\SOFTWARE\OpenSSH` → new String Value `DefaultShell` =
+       `C:\Program Files\PowerShell\7\pwsh.exe`. Or execute following in admin powershell:
+    ```powershell
+    New-ItemProperty -Path HKLM:\SOFTWARE\OpenSSH -Name DefaultShell -Value "C:\Program Files\PowerShell\7\pwsh.exe" -PropertyType String -Force
+    ```
+5. **Authorize the Mac's key.** `sidpa` is an admin, so sshd ignores
+   `~\.ssh\authorized_keys` and reads `C:\ProgramData\ssh\administrators_authorized_keys`
+   instead. Paste the Mac's `~/.ssh/id_rsa.pub` into it (e.g. `sudo vim` — Sudo for Windows is
+   under **Settings → System → Advanced**), or pull it over the working PC → Mac link from an
+   admin terminal:
+   ```powershell
+   ssh mac "cat ~/.ssh/id_rsa.pub" | Set-Content -Encoding ascii C:\ProgramData\ssh\administrators_authorized_keys
+   ```
+   No `icacls` needed: the file inherits `C:\ProgramData\ssh`'s ACL (SYSTEM + Administrators full,
+   Authenticated Users read), which sshd accepts. If key login ever silently falls back to a
+   password, lock it down:
+   `icacls C:\ProgramData\ssh\administrators_authorized_keys /inheritance:r /grant "*S-1-5-32-544:F" /grant "SYSTEM:F"`.
+
+Mac `~/.ssh/config`:
+
+```
+Host pc
+    HostName pinaka
+    User sidpa
+    IdentityFile ~/.ssh/id_rsa
+    WarnWeakCrypto no
+```
+
+Then `ssh pc`.
+
+- `WarnWeakCrypto no` silences macOS OpenSSH 10.x's "connection is not using a post-quantum key
+  exchange algorithm" warning. Windows' OpenSSH 9.5p2 doesn't offer ML-KEM/sntrup, so it
+  negotiates `curve25519` — still secure, just not post-quantum.
+- **Password login fails** (`Failed password for sidpa` in Event Viewer →
+  Applications and Services Logs → OpenSSH → Operational) with a Microsoft account when you only
+  sign in with a PIN/Windows Hello — sshd checks the locally cached password. Key login avoids
+  it. To make passwords work: sign in to Windows once with the account password, and turn off
+  **Accounts → Sign-in options → "For improved security, only allow Windows Hello sign-in"**.
+- sshd log from a normal terminal:
+  `Get-WinEvent -LogName OpenSSH/Operational -MaxEvents 20 | Format-List TimeCreated,Message`.
+
+### WinGet tools over SSH (PowerShell profile)
+
+Over SSH, the profile failed with `Program 'zoxide.exe' failed to run … The path cannot be
+traversed because it contains an untrusted mount point` (same for `mise`, and `eza`/`rg`/`bat`/…
+on use). WinGet puts its CLIs in `%LOCALAPPDATA%\Microsoft\WinGet\Links` as symlinks created
+without admin rights, and processes in an sshd session refuse to follow those. Fix: at the top
+of `$PROFILE`, only when `SSH_CONNECTION` is set (the Windows sshd sets it), put the symlinks'
+real package dirs ahead of `Links` on PATH:
+
+```powershell
+# Over SSH, Windows won't follow the user-created symlinks in WinGet\Links
+# ("untrusted mount point"), so put the real package dirs first on PATH
+if ($env:SSH_CONNECTION) {
+    $wingetDirs = Get-ChildItem "$env:LOCALAPPDATA\Microsoft\WinGet\Links" -File |
+        Where-Object LinkType -eq 'SymbolicLink' |
+        ForEach-Object { Split-Path $_.Target } |
+        Select-Object -Unique
+    $env:PATH = ($wingetDirs -join ';') + ';' + $env:PATH
+}
+```
+
+It's rebuilt each session, so tools installed later are picked up automatically. Local terminals
+are unaffected.
+
+### Mac → PC: SMB (not set up yet)
+
+SMB-In is already allowed on Private (File and Printer Sharing rules), but only the admin shares
+(`C$`, `D$`, `E$`) exist. To expose folders:
+
+```powershell
+New-SmbShare -Name sidpa -Path C:\Users\sidpa -FullAccess "PINAKA\sidpa"
+New-SmbShare -Name D -Path D:\ -FullAccess "PINAKA\sidpa"
+```
+
+Or right-click a folder → **Properties → Sharing → Advanced Sharing**. On the Mac: Finder →
+**⌘K** → `smb://pinaka/sidpa`, username = Microsoft account email, password = Microsoft account
+password (not the PIN; same cached-password caveat as SSH). Drag the mounted share into **Login
+Items** to auto-mount.
 
 ## Reboot notes
 
