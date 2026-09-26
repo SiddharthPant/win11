@@ -9,8 +9,8 @@ the base packages — no sudo, no `which`, no user account, nothing. This guide 
 
 ## Install
 
-WSL2 is also required on the Windows side — it powers Podman's machine there
-(see **Podman machine** in `2-windows-after-install.md`). From an elevated PowerShell on Windows:
+WSL2 is also required on the Windows side — it's Docker Desktop's backend there
+(see **Docker Desktop** in `2-windows-after-install.md`). From an elevated PowerShell on Windows:
 
 ```powershell
 wsl --list --online    # confirm archlinux is listed
@@ -108,39 +108,19 @@ filling in your name and email:
 - Don't add `core.autocrlf` or `core.longpaths` here — those are Windows-only concerns.
 - WSL's `.gitconfig` is separate from the Windows one, so fill in your identity in both.
 
-## Podman (native, rootless)
+## Docker (via Docker Desktop)
 
-No Docker Desktop integration here — install Podman directly in the distro. Inside a real
-Linux distro there is no podman machine; containers run natively:
+Nothing to install in the distro. Docker Desktop on Windows runs the engine, and its WSL
+integration adds the `docker` CLI (with `docker compose`) to Arch. Turn it on in **Docker
+Desktop → Settings → Resources → WSL integration → `archlinux`** (see **Docker Desktop** in
+`2-windows-after-install.md`), then reopen the distro and verify:
 
 ```bash
-sudo pacman -S podman podman-compose shadow
-```
-Choose crun when asked which runtime to choose from:
-```
-resolving dependencies...
-:: There are 3 providers available for oci-runtime:
-:: Repository extra
-   1) crun  2) krun  3) runc
-
-Enter a number (default=1): 1
-```
-Add `command="mount --make-rshared /"` to `[boot]` section in `/etc/wsl.conf`.
-Then run a container
-```bash
-podman run quay.io/podman/hello
+docker version            # shows both Client and Server
+docker run --rm hello-world
 ```
 
-Known Arch-on-WSL issues with rootless containers (per the
-[ArchWiki WSL page](https://wiki.archlinux.org/title/Install_Arch_Linux_on_WSL)):
-
-- `newuidmap: Could not set caps` → reinstall the shadow package: `sudo pacman -S shadow`,
-  then retry.
-- "Failed to start the systemd user session" / rootless tools misbehaving →
-  `sudo loginctl enable-linger <username>`.
-
-This is independent of the Windows-side podman machine (**Podman machine** in guide 2) — that one
-lives in its own small WSL distro managed by Podman.
+Don't `pacman -S docker` — a second engine inside the distro conflicts with the integration.
 
 ## Notes
 

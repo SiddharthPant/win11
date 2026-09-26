@@ -9,7 +9,7 @@ first-logon tweaks have run. Do the sections in order. Run everything in an elev
 
 ## WSL (Arch Linux, not Ubuntu)
 
-WSL2 is required anyway — it powers Podman's machine (the **Podman machine** section). Full
+WSL2 is required anyway — it's Docker Desktop's backend (the **Docker Desktop** section). Full
 bootstrap lives in **[`3-wsl-arch.md`](3-wsl-arch.md)** — the official image boots as barebones
 `root` (no sudo, no user) and needs setup. The install is just:
 
@@ -46,7 +46,6 @@ winget install -e `
   Notion.Notion `
   Git.Git `
   Microsoft.VisualStudioCode `
-  RedHat.Podman `
   Microsoft.PowerToys `
   voidtools.Everything `
   M2Team.NanaZip `
@@ -70,7 +69,7 @@ winget install -e `
 ```
 
 - Installs still run one after another, but a single invocation skips the per-app
-  startup/source-check overhead — noticeably faster than 11 separate commands. Don't run
+  startup/source-check overhead — noticeably faster than separate commands. Don't run
   several winget commands in parallel instead; they contend on the installer mutex and
   source catalog.
 - If one package fails mid-run, re-run just that ID: `winget install -e <ID>`.
@@ -87,84 +86,6 @@ winget install --id 9NKSQGP7F2NH -s msstore -e   # WhatsApp
 winget install --id 9WZDNCRFJ3TJ -s msstore -e   # Netflix
 winget install --id 9P4CLT2RJ1RS -s msstore -e   # MusicBee
 ```
-
-## PostgreSQL 18
-
-Not in the bulk list above — it needs installer switches (unattended mode + a pinned port)
-rather than a plain `winget install -e`:
-
-```powershell
-winget install --id PostgreSQL.PostgreSQL.18 --exact --override '--mode unattended --unattendedmodeui none --serverport 5432'
-```
-
-- `--override` **replaces** winget's default arguments with EDB's own installer switches, so the
-  interactive wizard never runs. UAC still prompts once.
-- `--mode unattended --unattendedmodeui none` suppresses the GUI and every prompt;
-  `--serverport 5432` states the port explicitly instead of leaning on the default.
-- Keep `--superpassword` off — the guide uses the installer's defaults as-is. What lands:
-  - Superuser role `postgres`, password `postgres` (the unattended default).
-  - Port 5432; auth is `scram-sha-256`, so a password is always required over TCP.
-  - Install dir `C:\Program Files\PostgreSQL\18\`, data dir `...\data\`, with
-    `postgresql.conf` and `pg_hba.conf` inside it.
-  - Windows service `postgresql-x64-18`, start type Automatic, running as
-    `NT AUTHORITY\NetworkService`.
-  - Bundled extras: pgAdmin 4 and StackBuilder.
-
-### Put `psql` on PATH
-
-The EDB installer does not add its `bin` folder to PATH. Append it to the system PATH:
-
-```powershell
-$bin  = 'C:\Program Files\PostgreSQL\18\bin'
-$path = [Environment]::GetEnvironmentVariable('PATH', 'Machine')
-if ($path -notlike "*$bin*") {
-  [Environment]::SetEnvironmentVariable('PATH', "$path;$bin", 'Machine')
-}
-```
-
-Open a new terminal afterwards for the change to apply.
-
-### Create the password file
-
-Stops `psql` prompting on every connection. `libpq` reads `%APPDATA%\postgresql\pgpass.conf`, one
-`host:port:database:username:password` line per role — `*` matches any database:
-
-```powershell
-$dir = "$env:APPDATA\postgresql"
-New-Item -ItemType Directory -Path $dir -Force | Out-Null
-@(
-  'localhost:5432:*:postgres:postgres'
-  '127.0.0.1:5432:*:postgres:postgres'
-) | Set-Content "$dir\pgpass.conf"
-```
-
-### Verify
-
-```powershell
-Get-Service postgresql-x64-18    # Running
-psql --version                   # psql (PostgreSQL) 18.6
-psql -U postgres -h localhost -d postgres -c "select version();"    # connects with no prompt
-```
-
-### Connect
-
-```powershell
-psql -U postgres -h localhost
-```
-
-- Windows has no Unix socket, so bare `psql -U postgres` also connects to localhost:5432.
-- In-session: `\l` databases, `\dt` tables, `\conninfo` current connection, `\?` help, `\q` quit.
-- URI form, for tools and env vars (sqlx, pgAdmin, containers):
-  `postgresql://postgres:postgres@localhost:5432/postgres`
-
-### Restarting the service
-
-```powershell
-Restart-Service postgresql-x64-18    # admin; run after editing pg_hba.conf / postgresql.conf
-```
-
-The data directory belongs to the service account, not your user — edit those config files from an
-elevated terminal.
 
 ## Visual Studio Build Tools (MSVC linker)
 
@@ -212,25 +133,37 @@ Open **Windows Terminal → Settings**:
   "Windows PowerShell").
 - Leave copy-on-select **off** (default) if you want Ctrl+C/Ctrl+V-style copying.
 
-## Podman machine
+## Docker Desktop
 
-Podman replaces Docker Desktop. The Windows `podman` CLI runs containers inside a **podman
-machine** — a small WSL2 distro it manages itself (your Arch distro from `3-wsl-arch.md`
-stays separate):
+Docker Desktop runs the Docker engine on the **WSL 2 backend**, in its own `docker-desktop`
+distro that it manages itself (your Arch distro from `3-wsl-arch.md` stays separate).
 
 ```powershell
-podman machine init
-podman machine start
-podman run quay.io/podman/hello
+winget install -e --id Docker.DockerDesktop
 ```
 
-- Run `podman machine start` after each Windows reboot before using containers.
-- The CLI speaks docker-style commands (`podman ps`, `podman build`, `podman compose`), and
-  podman also serves the Docker API socket, so Docker-based tools work against it. To type
-  `docker` out of habit, add `Set-Alias docker podman` to your PowerShell profile
-  (`notepad $PROFILE`).
-- Prefer a GUI? `winget install -e RedHat.Podman-Desktop` manages machines and containers
-  visually.
+Sign out and back in (or reboot) when the installer asks, then:
+
+1. Launch **Docker Desktop** from the Start menu and accept the subscription agreement (free
+   for personal use). Signing in is optional; skip it.
+2. **Settings → General:** confirm **Use the WSL 2 based engine** is on, and turn on **Start
+   Docker Desktop when you sign in** so containers work after a reboot without a manual launch.
+3. **Settings → Resources → WSL integration:** turn on `archlinux` → **Apply**. This puts the
+   `docker` CLI inside Arch too (see **Docker (via Docker Desktop)** in `3-wsl-arch.md`).
+
+Verify from a new terminal:
+
+```powershell
+docker version            # shows both Client and Server
+docker compose version
+docker run --rm hello-world
+```
+
+- No `docker-users` group change is needed — that's only for Hyper-V or Windows containers, not
+  Linux containers on WSL 2.
+- `wsl -l -v` now also lists `docker-desktop`. Leave it alone; Docker Desktop manages it.
+- Run databases and other services as containers, per project, from its `compose.yaml`:
+  `docker compose up -d`.
 
 ## Windows Update active hours (GUI)
 

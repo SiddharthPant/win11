@@ -46,11 +46,11 @@ guides in **`setup/`** — readable checklists you keep updated by hand.
    **[`setup/1-defender-disable-steps.md`](setup/1-defender-disable-steps.md)** — turn Tamper
    Protection off in Windows Security, then pick Option A/B/C in that guide.
 8. Follow **[`setup/2-windows-after-install.md`](setup/2-windows-after-install.md)** — WSL (Arch,
-   not Ubuntu), winget apps, Maple Mono NF, Git defaults, Windows Terminal, Podman machine, and
+   not Ubuntu), winget apps, Maple Mono NF, Git defaults, Windows Terminal, Docker Desktop, and
    Windows Update active hours.
 9. Inside WSL, bootstrap the Arch Linux distro per
    **[`setup/3-wsl-arch.md`](setup/3-wsl-arch.md)** — it boots barebones as root: create your user,
-   install basics, then Git and native rootless Podman.
+   install basics, then Git and Docker via Docker Desktop's WSL integration.
 
    *Backup alternative:* instead of the markdown guides, run the PowerShell migrations from
    `old-scripts/`: open an elevated PowerShell there, `Set-ExecutionPolicy RemoteSigned
