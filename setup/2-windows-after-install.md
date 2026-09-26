@@ -337,10 +337,8 @@ Then `ssh pc`.
   exchange algorithm" warning. Windows' OpenSSH 9.5p2 doesn't offer ML-KEM/sntrup, so it
   negotiates `curve25519` — still secure, just not post-quantum.
 - **Password login fails** (`Failed password for sidpa` in Event Viewer →
-  Applications and Services Logs → OpenSSH → Operational) with a Microsoft account when you only
-  sign in with a PIN/Windows Hello — sshd checks the locally cached password. Key login avoids
-  it. To make passwords work: sign in to Windows once with the account password, and turn off
-  **Accounts → Sign-in options → "For improved security, only allow Windows Hello sign-in"**.
+  Applications and Services Logs → OpenSSH → Operational) while Windows Hello-only sign-in is on.
+  Key login avoids it; for passwords see **Mac → PC: Microsoft account password sign-in**.
 - sshd log from a normal terminal:
   `Get-WinEvent -LogName OpenSSH/Operational -MaxEvents 20 | Format-List TimeCreated,Message`.
 
@@ -368,20 +366,67 @@ if ($env:SSH_CONNECTION) {
 It's rebuilt each session, so tools installed later are picked up automatically. Local terminals
 are unaffected.
 
-### Mac → PC: SMB (not set up yet)
+### Mac → PC: Microsoft account password sign-in
 
-SMB-In is already allowed on Private (File and Printer Sharing rules), but only the admin shares
-(`C$`, `D$`, `E$`) exist. To expose folders:
+SMB (and SSH password login) authenticate with the **Microsoft account password**, which Windows
+checks against a locally cached copy. With **"only allow Windows Hello sign-in"** on (the Windows
+default for Microsoft accounts), the PC only ever sees the PIN, so that copy is missing or stale
+and every network password is rejected — the Mac's "Registered User" dialog just keeps
+re-prompting. Check the state (`2` = Hello-only on, `0` = off):
+
+```powershell
+(Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\PasswordLess\Device').DevicePasswordLessBuildVersion
+```
+
+Fix:
+
+1. **Settings → Accounts → Sign-in options** → turn **off** "For improved security, only allow
+   Windows Hello sign-in for Microsoft accounts on this device".
+2. **Win+L** to lock, then unlock with the **password**: **Sign-in options** → key icon →
+   Microsoft account password. That caches it; a full sign-out isn't needed.
+
+Trade-offs of leaving Hello-only off:
+
+- PIN / Windows Hello still work and stay the default tile — the password is just an extra
+  option. Nothing else (BitLocker, Store, OneDrive) depends on the toggle.
+- The Microsoft account password now unlocks the PC at the keyboard and over SMB/SSH on the LAN.
+  Account 2FA doesn't cover local or network logons, so keep that password strong and unique.
+  SMB/SSH are only open on the Private profile.
+- After changing the Microsoft password online, lock + unlock once with the new password, or SMB
+  (and the Mac's Keychain entry) keeps failing on the stale cached copy.
+
+Diagnosing a rejected login (admin terminal, right after the failure) — look at **Sub Status**:
+`0xC000006A` = wrong/stale password (redo step 2), `0xC0000064` = unknown username (try `sidpa`
+instead of the email):
+
+```powershell
+Get-WinEvent -FilterHashtable @{LogName='Security';Id=4625} -MaxEvents 3 | Format-List TimeCreated,Message
+```
+
+If the Microsoft account itself is passwordless (account.microsoft.com → Security → Passwordless
+account), there is no password to cache — the fallback is a dedicated local account for SMB
+(`net user smbuser <password> /add`), which also needs NTFS access granted on `C:\Users\sidpa`.
+
+### Mac → PC: SMB
+
+SMB-In is already allowed on Private (File and Printer Sharing rules), but out of the box only the
+admin shares (`C$`, `D$`, `E$`) exist. Share folders (admin terminal):
 
 ```powershell
 New-SmbShare -Name sidpa -Path C:\Users\sidpa -FullAccess "PINAKA\sidpa"
 New-SmbShare -Name D -Path D:\ -FullAccess "PINAKA\sidpa"
 ```
 
-Or right-click a folder → **Properties → Sharing → Advanced Sharing**. On the Mac: Finder →
-**⌘K** → `smb://pinaka/sidpa`, username = Microsoft account email, password = Microsoft account
-password (not the PIN; same cached-password caveat as SSH). Drag the mounted share into **Login
-Items** to auto-mount.
+Or right-click a folder → **Properties → Sharing → Advanced Sharing** → **Share this folder** →
+**Permissions** → add `sidpa` with **Full Control**.
+
+Needs **Mac → PC: Microsoft account password sign-in** done first. On the Mac:
+
+1. Finder → **⌘K** → `smb://pinaka/sidpa` (or `smb://pinaka` to pick from the share list).
+2. **Registered User**: Microsoft account email + Microsoft account password (not the PIN);
+   tick **Remember this password in my keychain**.
+3. **+** in Connect to Server to favorite it; drag the mounted share into **System Settings →
+   General → Login Items** to auto-mount.
 
 ## Reboot notes
 
